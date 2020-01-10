@@ -6,112 +6,118 @@
 
 /**
  * @file
- * Implements SAR strategy.
+ * Implements SAR strategy based on the Parabolic Stop and Reverse system indicator.
  */
 
 // Includes.
-#include "../../EA31337-classes/Indicators/Indi_SAR.mqh"
-#include "../../EA31337-classes/Strategy.mqh"
+#include <EA31337-classes/Indicators/Indi_SAR.mqh>
+#include <EA31337-classes/Strategy.mqh>
 
 // User input params.
-INPUT string __SAR_Parameters__ = "-- Settings for the Parabolic Stop and Reverse system indicator --";  // >>> SAR <<<
-INPUT uint SAR_Active_Tf = 8;         // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
+INPUT string __SAR_Parameters__ = "-- SAR strategy params --";  // >>> SAR <<<
+INPUT int SAR_Active_Tf = 8;          // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
 INPUT double SAR_Step = 0.05;         // Step
 INPUT double SAR_Maximum_Stop = 0.4;  // Maximum stop
 INPUT int SAR_Shift = 0;              // Shift
 INPUT ENUM_TRAIL_TYPE SAR_TrailingStopMethod = 7;     // Trail stop method
 INPUT ENUM_TRAIL_TYPE SAR_TrailingProfitMethod = 11;  // Trail profit method
-INPUT double SAR_SignalLevel = 0;                     // Signal level
-INPUT int SAR1_SignalMethod = 91;                     // Signal method for M1 (-127-127)
-INPUT int SAR5_SignalMethod = 25;                     // Signal method for M5 (-127-127)
-INPUT int SAR15_SignalMethod = 28;                    // Signal method for M15 (-127-127)
-INPUT int SAR30_SignalMethod = 2;                     // Signal method for M30 (-127-127)
+INPUT double SAR_SignalOpenLevel = 0;                 // Signal open level
+INPUT int SAR1_SignalBaseMethod = 91;                 // Signal base method (-127-127)
 INPUT int SAR1_OpenCondition1 = 680;
 INPUT int SAR1_OpenCondition2 = 0;
-INPUT ENUM_MARKET_EVENT SAR1_CloseCondition = 1;   // Close condition for M1
-INPUT int SAR5_OpenCondition1 = 680;               // Open condition 1 for M1 (0-1023)
-INPUT int SAR5_OpenCondition2 = 0;                 // Open condition 2 for M5 (0-1023)
-INPUT ENUM_MARKET_EVENT SAR5_CloseCondition = 1;   // Close condition for M5
-INPUT int SAR15_OpenCondition1 = 389;              // Open condition 1 for M15 (0-1023)
-INPUT int SAR15_OpenCondition2 = 0;                // Open condition 2 for M15 (0-1023)
-INPUT ENUM_MARKET_EVENT SAR15_CloseCondition = 1;  // Close condition for M15
-INPUT int SAR30_OpenCondition1 = 389;              // Open condition 1 for M30 (0-1023)
-INPUT int SAR30_OpenCondition2 = 0;                // Open condition 2 for M30 (0-1023)
-INPUT ENUM_MARKET_EVENT SAR30_CloseCondition = 1;  // Close condition for M30
-INPUT double SAR1_MaxSpread = 6.0;                 // Max spread to trade for M1 (pips)
-INPUT double SAR5_MaxSpread = 7.0;                 // Max spread to trade for M5 (pips)
-INPUT double SAR15_MaxSpread = 8.0;                // Max spread to trade for M15 (pips)
-INPUT double SAR30_MaxSpread = 10.0;               // Max spread to trade for M30 (pips)
+INPUT ENUM_MARKET_EVENT SAR1_CloseCondition = 1;  // Close condition for M1
+INPUT int SAR5_OpenCondition1 = 680;              // Open condition 1 (0-1023)
+INPUT double SAR_MaxSpread = 6.0;                 // Max spread to trade (pips)
+
+// Struct to define strategy parameters to override.
+struct Stg_SAR_Params : Stg_Params {
+  unsigned int SAR_Period;
+  ENUM_APPLIED_PRICE SAR_Applied_Price;
+  int SAR_Shift;
+  ENUM_TRAIL_TYPE SAR_TrailingStopMethod;
+  ENUM_TRAIL_TYPE SAR_TrailingProfitMethod;
+  double SAR_SignalOpenLevel;
+  long SAR_SignalBaseMethod;
+  long SAR_SignalOpenMethod1;
+  long SAR_SignalOpenMethod2;
+  double SAR_SignalCloseLevel;
+  ENUM_MARKET_EVENT SAR_SignalCloseMethod1;
+  ENUM_MARKET_EVENT SAR_SignalCloseMethod2;
+  double SAR_MaxSpread;
+
+  // Constructor: Set default param values.
+  Stg_SAR_Params()
+      : SAR_Period(::SAR_Period),
+        SAR_Applied_Price(::SAR_Applied_Price),
+        SAR_Shift(::SAR_Shift),
+        SAR_TrailingStopMethod(::SAR_TrailingStopMethod),
+        SAR_TrailingProfitMethod(::SAR_TrailingProfitMethod),
+        SAR_SignalOpenLevel(::SAR_SignalOpenLevel),
+        SAR_SignalBaseMethod(::SAR_SignalBaseMethod),
+        SAR_SignalOpenMethod1(::SAR_SignalOpenMethod1),
+        SAR_SignalOpenMethod2(::SAR_SignalOpenMethod2),
+        SAR_SignalCloseLevel(::SAR_SignalCloseLevel),
+        SAR_SignalCloseMethod1(::SAR_SignalCloseMethod1),
+        SAR_SignalCloseMethod2(::SAR_SignalCloseMethod2),
+        SAR_MaxSpread(::SAR_MaxSpread) {}
+};
+
+// Loads pair specific param values.
+#include "sets/EURUSD_H1.h"
+#include "sets/EURUSD_H4.h"
+#include "sets/EURUSD_M1.h"
+#include "sets/EURUSD_M15.h"
+#include "sets/EURUSD_M30.h"
+#include "sets/EURUSD_M5.h"
 
 class Stg_SAR : public Strategy {
  public:
   Stg_SAR(StgParams &_params, string _name) : Strategy(_params, _name) {}
 
-  static Stg_SAR *Init_M1() {
-    ChartParams cparams1(PERIOD_M1);
-    IndicatorParams sar_iparams(10, INDI_SAR);
-    SAR_Params sar1_iparams(SAR_Step, SAR_Maximum_Stop);
-    StgParams sar1_sparams(new Trade(PERIOD_M1, _Symbol), new Indi_SAR(sar1_iparams, sar_iparams, cparams1), NULL,
-                           NULL);
-    sar1_sparams.SetSignals(SAR1_SignalMethod, SAR1_OpenCondition1, SAR1_OpenCondition2, SAR1_CloseCondition, NULL,
-                            SAR_SignalLevel, NULL);
-    sar1_sparams.SetStops(SAR_TrailingProfitMethod, SAR_TrailingStopMethod);
-    sar1_sparams.SetMaxSpread(SAR1_MaxSpread);
-    sar1_sparams.SetId(SAR1);
-    return (new Stg_SAR(sar1_sparams, "SAR1"));
-  }
-  static Stg_SAR *Init_M5() {
-    ChartParams cparams5(PERIOD_M5);
-    IndicatorParams sar_iparams(10, INDI_SAR);
-    SAR_Params sar5_iparams(SAR_Step, SAR_Maximum_Stop);
-    StgParams sar5_sparams(new Trade(PERIOD_M5, _Symbol), new Indi_SAR(sar5_iparams, sar_iparams, cparams5), NULL,
-                           NULL);
-    sar5_sparams.SetSignals(SAR5_SignalMethod, SAR5_OpenCondition1, SAR5_OpenCondition2, SAR5_CloseCondition, NULL,
-                            SAR_SignalLevel, NULL);
-    sar5_sparams.SetStops(SAR_TrailingProfitMethod, SAR_TrailingStopMethod);
-    sar5_sparams.SetMaxSpread(SAR5_MaxSpread);
-    sar5_sparams.SetId(SAR5);
-    return (new Stg_SAR(sar5_sparams, "SAR5"));
-  }
-  static Stg_SAR *Init_M15() {
-    ChartParams cparams15(PERIOD_M15);
-    IndicatorParams sar_iparams(10, INDI_SAR);
-    SAR_Params sar15_iparams(SAR_Step, SAR_Maximum_Stop);
-    StgParams sar15_sparams(new Trade(PERIOD_M15, _Symbol), new Indi_SAR(sar15_iparams, sar_iparams, cparams15), NULL,
-                            NULL);
-    sar15_sparams.SetSignals(SAR15_SignalMethod, SAR15_OpenCondition1, SAR15_OpenCondition2, SAR15_CloseCondition, NULL,
-                             SAR_SignalLevel, NULL);
-    sar15_sparams.SetStops(SAR_TrailingProfitMethod, SAR_TrailingStopMethod);
-    sar15_sparams.SetMaxSpread(SAR15_MaxSpread);
-    sar15_sparams.SetId(SAR15);
-    return (new Stg_SAR(sar15_sparams, "SAR15"));
-  }
-  static Stg_SAR *Init_M30() {
-    ChartParams cparams30(PERIOD_M30);
-    IndicatorParams sar_iparams(10, INDI_SAR);
-    SAR_Params sar30_iparams(SAR_Step, SAR_Maximum_Stop);
-    StgParams sar30_sparams(new Trade(PERIOD_M30, _Symbol), new Indi_SAR(sar30_iparams, sar_iparams, cparams30), NULL,
-                            NULL);
-    sar30_sparams.SetSignals(SAR30_SignalMethod, SAR30_OpenCondition1, SAR30_OpenCondition2, SAR30_CloseCondition, NULL,
-                             SAR_SignalLevel, NULL);
-    sar30_sparams.SetStops(SAR_TrailingProfitMethod, SAR_TrailingStopMethod);
-    sar30_sparams.SetMaxSpread(SAR30_MaxSpread);
-    sar30_sparams.SetId(SAR30);
-    return (new Stg_SAR(sar30_sparams, "SAR30"));
-  }
-  static Stg_SAR *Init(ENUM_TIMEFRAMES _tf) {
+  static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
+    // Initialize strategy initial values.
+    Stg_SAR_Params _params;
     switch (_tf) {
-      case PERIOD_M1:
-        return Init_M1();
-      case PERIOD_M5:
-        return Init_M5();
-      case PERIOD_M15:
-        return Init_M15();
-      case PERIOD_M30:
-        return Init_M30();
-      default:
-        return NULL;
+      case PERIOD_M1: {
+        Stg_SAR_EURUSD_M1_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M5: {
+        Stg_SAR_EURUSD_M5_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M15: {
+        Stg_SAR_EURUSD_M15_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M30: {
+        Stg_SAR_EURUSD_M30_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_H1: {
+        Stg_SAR_EURUSD_H1_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_H4: {
+        Stg_SAR_EURUSD_H4_Params _new_params;
+        _params = _new_params;
+      }
     }
+    // Initialize strategy parameters.
+    ChartParams cparams(_tf);
+    SAR_Params adx_params(_params.SAR_Period, _params.SAR_Applied_Price);
+    IndicatorParams adx_iparams(10, INDI_SAR);
+    StgParams sparams(new Trade(_tf, _Symbol), new Indi_SAR(adx_params, adx_iparams, cparams), NULL, NULL);
+    sparams.logger.SetLevel(_log_level);
+    sparams.SetMagicNo(_magic_no);
+    sparams.SetSignals(_params.SAR_SignalBaseMethod, _params.SAR_SignalOpenMethod1, _params.SAR_SignalOpenMethod2,
+                       _params.SAR_SignalCloseMethod1, _params.SAR_SignalCloseMethod2, _params.SAR_SignalOpenLevel,
+                       _params.SAR_SignalCloseLevel);
+    sparams.SetStops(_params.SAR_TrailingProfitMethod, _params.SAR_TrailingStopMethod);
+    sparams.SetMaxSpread(_params.SAR_MaxSpread);
+    // Initialize strategy instance.
+    Strategy *_strat = new Stg_SAR(sparams, "SAR");
+    return _strat;
   }
 
   /**
@@ -160,5 +166,13 @@ class Stg_SAR : public Strategy {
         break;
     }
     return _result;
+  }
+
+  /**
+   * Check strategy's closing signal.
+   */
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
+    if (_signal_level == EMPTY) _signal_level = GetSignalCloseLevel();
+    return SignalOpen(Order::NegateOrderType(_cmd), _signal_method, _signal_level);
   }
 };
