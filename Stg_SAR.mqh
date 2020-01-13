@@ -15,34 +15,28 @@
 
 // User input params.
 INPUT string __SAR_Parameters__ = "-- SAR strategy params --";  // >>> SAR <<<
-INPUT int SAR_Active_Tf = 8;          // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
-INPUT double SAR_Step = 0.05;         // Step
-INPUT double SAR_Maximum_Stop = 0.4;  // Maximum stop
-INPUT int SAR_Shift = 0;              // Shift
-INPUT ENUM_TRAIL_TYPE SAR_TrailingStopMethod = 7;     // Trail stop method
-INPUT ENUM_TRAIL_TYPE SAR_TrailingProfitMethod = 11;  // Trail profit method
-INPUT double SAR_SignalOpenLevel = 0;                 // Signal open level
-INPUT int SAR1_SignalBaseMethod = 91;                 // Signal base method (-127-127)
-INPUT int SAR1_OpenCondition1 = 680;
-INPUT int SAR1_OpenCondition2 = 0;
-INPUT ENUM_MARKET_EVENT SAR1_CloseCondition = 1;  // Close condition for M1
-INPUT int SAR5_OpenCondition1 = 680;              // Open condition 1 (0-1023)
-INPUT double SAR_MaxSpread = 6.0;                 // Max spread to trade (pips)
+INPUT double SAR_Step = 0.05;                                   // Step
+INPUT double SAR_Maximum_Stop = 0.4;                            // Maximum stop
+INPUT int SAR_Shift = 0;                                        // Shift
+INPUT int SAR_SignalOpenMethod = 91;                            // Signal open method (-127-127)
+INPUT double SAR_SignalOpenLevel = 0;                           // Signal open level
+INPUT int SAR_SignalCloseMethod = 91;                           // Signal close method (-127-127)
+INPUT double SAR_SignalCloseLevel = 0;                          // Signal close level
+INPUT int SAR_PriceLimitMethod = 0;                             // Price limit method
+INPUT double SAR_PriceLimitLevel = 0;                           // Price limit level
+INPUT double SAR_MaxSpread = 6.0;                               // Max spread to trade (pips)
 
 // Struct to define strategy parameters to override.
 struct Stg_SAR_Params : Stg_Params {
   unsigned int SAR_Period;
   ENUM_APPLIED_PRICE SAR_Applied_Price;
   int SAR_Shift;
-  ENUM_TRAIL_TYPE SAR_TrailingStopMethod;
-  ENUM_TRAIL_TYPE SAR_TrailingProfitMethod;
+  int SAR_SignalOpenMethod;
   double SAR_SignalOpenLevel;
-  long SAR_SignalBaseMethod;
-  long SAR_SignalOpenMethod1;
-  long SAR_SignalOpenMethod2;
+  int SAR_SignalCloseMethod;
   double SAR_SignalCloseLevel;
-  ENUM_MARKET_EVENT SAR_SignalCloseMethod1;
-  ENUM_MARKET_EVENT SAR_SignalCloseMethod2;
+  int SAR_PriceLimitMethod;
+  double SAR_PriceLimitLevel;
   double SAR_MaxSpread;
 
   // Constructor: Set default param values.
@@ -50,15 +44,12 @@ struct Stg_SAR_Params : Stg_Params {
       : SAR_Period(::SAR_Period),
         SAR_Applied_Price(::SAR_Applied_Price),
         SAR_Shift(::SAR_Shift),
-        SAR_TrailingStopMethod(::SAR_TrailingStopMethod),
-        SAR_TrailingProfitMethod(::SAR_TrailingProfitMethod),
+        SAR_SignalOpenMethod(::SAR_SignalOpenMethod),
         SAR_SignalOpenLevel(::SAR_SignalOpenLevel),
-        SAR_SignalBaseMethod(::SAR_SignalBaseMethod),
-        SAR_SignalOpenMethod1(::SAR_SignalOpenMethod1),
-        SAR_SignalOpenMethod2(::SAR_SignalOpenMethod2),
+        SAR_SignalCloseMethod(::SAR_SignalCloseMethod),
         SAR_SignalCloseLevel(::SAR_SignalCloseLevel),
-        SAR_SignalCloseMethod1(::SAR_SignalCloseMethod1),
-        SAR_SignalCloseMethod2(::SAR_SignalCloseMethod2),
+        SAR_PriceLimitMethod(::SAR_PriceLimitMethod),
+        SAR_PriceLimitLevel(::SAR_PriceLimitLevel),
         SAR_MaxSpread(::SAR_MaxSpread) {}
 };
 
@@ -110,10 +101,8 @@ class Stg_SAR : public Strategy {
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_SAR(adx_params, adx_iparams, cparams), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
-    sparams.SetSignals(_params.SAR_SignalBaseMethod, _params.SAR_SignalOpenMethod1, _params.SAR_SignalOpenMethod2,
-                       _params.SAR_SignalCloseMethod1, _params.SAR_SignalCloseMethod2, _params.SAR_SignalOpenLevel,
+    sparams.SetSignals(_params.SAR_SignalOpenMethod, _params.SAR_SignalOpenLevel, _params.SAR_SignalCloseMethod,
                        _params.SAR_SignalCloseLevel);
-    sparams.SetStops(_params.SAR_TrailingProfitMethod, _params.SAR_TrailingStopMethod);
     sparams.SetMaxSpread(_params.SAR_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_SAR(sparams, "SAR");
@@ -126,42 +115,41 @@ class Stg_SAR : public Strategy {
    * @param
    *   _cmd (int) - type of trade order command
    *   period (int) - period to check for
-   *   _signal_method (int) - signal method to use by using bitwise AND operation
-   *   _signal_level1 (double) - signal level to consider the signal (in pips)
-   *   _signal_level1 (double) - signal level to consider the signal
+   *   _method (int) - signal method to use by using bitwise AND operation
+   *   _level1 (double) - signal level to consider the signal (in pips)
+   *   _level1 (double) - signal level to consider the signal
    */
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
     bool _result = false;
     double sar_0 = ((Indi_SAR *)this.Data()).GetValue(0);
     double sar_1 = ((Indi_SAR *)this.Data()).GetValue(1);
     double sar_2 = ((Indi_SAR *)this.Data()).GetValue(2);
-    if (_signal_method == EMPTY) _signal_method = GetSignalBaseMethod();
-    if (_signal_level1 == EMPTY) _signal_level1 = GetSignalLevel1();
-    if (_signal_level2 == EMPTY) _signal_level2 = GetSignalLevel2();
-    double gap = _signal_level1 * pip_size;
+    if (_level1 == EMPTY) _level1 = GetSignalLevel1();
+    if (_level2 == EMPTY) _level2 = GetSignalLevel2();
+    double gap = _level1 * pip_size;
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _result = sar_0 + gap < Open[CURR] || sar_1 + gap < Open[PREV];
-        if (_signal_method != 0) {
-          if (METHOD(_signal_method, 0)) _result &= sar_1 - gap > this.Chart().GetAsk();
-          if (METHOD(_signal_method, 1)) _result &= sar_0 < sar_1;
-          if (METHOD(_signal_method, 2)) _result &= sar_0 - sar_1 <= sar_1 - sar_2;
-          if (METHOD(_signal_method, 3)) _result &= sar_2 > this.Chart().GetAsk();
-          if (METHOD(_signal_method, 4)) _result &= sar_0 <= Close[CURR];
-          if (METHOD(_signal_method, 5)) _result &= sar_1 > Close[PREV];
-          if (METHOD(_signal_method, 6)) _result &= sar_1 > Open[PREV];
+        if (_method != 0) {
+          if (METHOD(_method, 0)) _result &= sar_1 - gap > this.Chart().GetAsk();
+          if (METHOD(_method, 1)) _result &= sar_0 < sar_1;
+          if (METHOD(_method, 2)) _result &= sar_0 - sar_1 <= sar_1 - sar_2;
+          if (METHOD(_method, 3)) _result &= sar_2 > this.Chart().GetAsk();
+          if (METHOD(_method, 4)) _result &= sar_0 <= Close[CURR];
+          if (METHOD(_method, 5)) _result &= sar_1 > Close[PREV];
+          if (METHOD(_method, 6)) _result &= sar_1 > Open[PREV];
         }
         break;
       case ORDER_TYPE_SELL:
         _result = sar_0 - gap > Open[CURR] || sar_1 - gap > Open[PREV];
-        if (_signal_method != 0) {
-          if (METHOD(_signal_method, 0)) _result &= sar_1 + gap < this.Chart().GetAsk();
-          if (METHOD(_signal_method, 1)) _result &= sar_0 > sar_1;
-          if (METHOD(_signal_method, 2)) _result &= sar_1 - sar_0 <= sar_2 - sar_1;
-          if (METHOD(_signal_method, 3)) _result &= sar_2 < this.Chart().GetAsk();
-          if (METHOD(_signal_method, 4)) _result &= sar_0 >= Close[CURR];
-          if (METHOD(_signal_method, 5)) _result &= sar_1 < Close[PREV];
-          if (METHOD(_signal_method, 6)) _result &= sar_1 < Open[PREV];
+        if (_method != 0) {
+          if (METHOD(_method, 0)) _result &= sar_1 + gap < this.Chart().GetAsk();
+          if (METHOD(_method, 1)) _result &= sar_0 > sar_1;
+          if (METHOD(_method, 2)) _result &= sar_1 - sar_0 <= sar_2 - sar_1;
+          if (METHOD(_method, 3)) _result &= sar_2 < this.Chart().GetAsk();
+          if (METHOD(_method, 4)) _result &= sar_0 >= Close[CURR];
+          if (METHOD(_method, 5)) _result &= sar_1 < Close[PREV];
+          if (METHOD(_method, 6)) _result &= sar_1 < Open[PREV];
         }
         break;
     }
@@ -171,8 +159,23 @@ class Stg_SAR : public Strategy {
   /**
    * Check strategy's closing signal.
    */
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
-    if (_signal_level == EMPTY) _signal_level = GetSignalCloseLevel();
-    return SignalOpen(Order::NegateOrderType(_cmd), _signal_method, _signal_level);
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  }
+
+  /**
+   * Gets price limit value for profit take or stop loss.
+   */
+  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, int _method = 0, double _level = 0.0) {
+    double _trail = _level * Market().GetPipSize();
+    int _direction = Order::OrderDirection(_cmd) * (_mode == LIMIT_VALUE_STOP ? -1 : 1);
+    double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
+    double _result = _default_value;
+    switch (_method) {
+      case 0: {
+        // @todo
+      }
+    }
+    return _result;
   }
 };
