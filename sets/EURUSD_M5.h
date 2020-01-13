@@ -9,8 +9,8 @@ struct Stg_SAR_EURUSD_M5_Params : Stg_SAR_Params {
   Stg_SAR_EURUSD_M5_Params() {
     symbol = "EURUSD";
     tf = PERIOD_M5;
-    SAR_Period = 2;
-    SAR_Applied_Price = 3;
+    SAR_Step = 0.05;
+    SAR_Maximum_Stop = 0.4;
     SAR_Shift = 0;
     SAR_SignalOpenMethod = -61;
     SAR_SignalOpenLevel = 36;

@@ -28,8 +28,8 @@ INPUT double SAR_MaxSpread = 6.0;                               // Max spread to
 
 // Struct to define strategy parameters to override.
 struct Stg_SAR_Params : Stg_Params {
-  unsigned int SAR_Period;
-  ENUM_APPLIED_PRICE SAR_Applied_Price;
+  double SAR_Step;
+  double SAR_Maximum_Stop;
   int SAR_Shift;
   int SAR_SignalOpenMethod;
   double SAR_SignalOpenLevel;
@@ -41,8 +41,8 @@ struct Stg_SAR_Params : Stg_Params {
 
   // Constructor: Set default param values.
   Stg_SAR_Params()
-      : SAR_Period(::SAR_Period),
-        SAR_Applied_Price(::SAR_Applied_Price),
+      : SAR_Step(::SAR_Step),
+        SAR_Maximum_Stop(::SAR_Maximum_Stop),
         SAR_Shift(::SAR_Shift),
         SAR_SignalOpenMethod(::SAR_SignalOpenMethod),
         SAR_SignalOpenLevel(::SAR_SignalOpenLevel),
@@ -96,9 +96,9 @@ class Stg_SAR : public Strategy {
     }
     // Initialize strategy parameters.
     ChartParams cparams(_tf);
-    SAR_Params adx_params(_params.SAR_Period, _params.SAR_Applied_Price);
-    IndicatorParams adx_iparams(10, INDI_SAR);
-    StgParams sparams(new Trade(_tf, _Symbol), new Indi_SAR(adx_params, adx_iparams, cparams), NULL, NULL);
+    SAR_Params sar_params(_params.SAR_Step, _params.SAR_Maximum_Stop);
+    IndicatorParams sar_iparams(10, INDI_SAR);
+    StgParams sparams(new Trade(_tf, _Symbol), new Indi_SAR(sar_params, sar_iparams, cparams), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.SAR_SignalOpenMethod, _params.SAR_SignalOpenLevel, _params.SAR_SignalCloseMethod,
@@ -110,23 +110,14 @@ class Stg_SAR : public Strategy {
   }
 
   /**
-   * Check if SAR indicator is on buy or sell.
-   *
-   * @param
-   *   _cmd (int) - type of trade order command
-   *   period (int) - period to check for
-   *   _method (int) - signal method to use by using bitwise AND operation
-   *   _level1 (double) - signal level to consider the signal (in pips)
-   *   _level1 (double) - signal level to consider the signal
+   * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
     bool _result = false;
     double sar_0 = ((Indi_SAR *)this.Data()).GetValue(0);
     double sar_1 = ((Indi_SAR *)this.Data()).GetValue(1);
     double sar_2 = ((Indi_SAR *)this.Data()).GetValue(2);
-    if (_level1 == EMPTY) _level1 = GetSignalLevel1();
-    if (_level2 == EMPTY) _level2 = GetSignalLevel2();
-    double gap = _level1 * pip_size;
+    double gap = _level * Market().GetPipSize();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         _result = sar_0 + gap < Open[CURR] || sar_1 + gap < Open[PREV];
