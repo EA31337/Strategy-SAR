@@ -114,33 +114,39 @@ class Stg_SAR : public Strategy {
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
     bool _result = false;
-    double sar_0 = ((Indi_SAR *)this.Data()).GetValue(0);
-    double sar_1 = ((Indi_SAR *)this.Data()).GetValue(1);
-    double sar_2 = ((Indi_SAR *)this.Data()).GetValue(2);
+    double open_0 = Chart().GetOpen(0);
+    double open_1 = Chart().GetOpen(1);
+    double close_0 = Chart().GetClose(0);
+    double close_1 = Chart().GetClose(1);
+    double sar_0 = ((Indi_SAR *) Data()).GetValue(0);
+    double sar_1 = ((Indi_SAR *) Data()).GetValue(1);
+    double sar_2 = ((Indi_SAR *) Data()).GetValue(2);
     double gap = _level * Market().GetPipSize();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
-        _result = sar_0 + gap < Open[CURR] || sar_1 + gap < Open[PREV];
+        _result = sar_0 + gap < open_0;
+        _result |= sar_1 + gap < open_1;
         if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= sar_1 - gap > this.Chart().GetAsk();
+          if (METHOD(_method, 0)) _result &= sar_1 - gap > Market().GetAsk();
           if (METHOD(_method, 1)) _result &= sar_0 < sar_1;
           if (METHOD(_method, 2)) _result &= sar_0 - sar_1 <= sar_1 - sar_2;
-          if (METHOD(_method, 3)) _result &= sar_2 > this.Chart().GetAsk();
-          if (METHOD(_method, 4)) _result &= sar_0 <= Close[CURR];
-          if (METHOD(_method, 5)) _result &= sar_1 > Close[PREV];
-          if (METHOD(_method, 6)) _result &= sar_1 > Open[PREV];
+          if (METHOD(_method, 3)) _result &= sar_2 > Market().GetAsk();
+          if (METHOD(_method, 4)) _result &= sar_0 <= close_0;
+          if (METHOD(_method, 5)) _result &= sar_1 > close_1;
+          if (METHOD(_method, 6)) _result &= sar_1 > open_1;
         }
         break;
       case ORDER_TYPE_SELL:
-        _result = sar_0 - gap > Open[CURR] || sar_1 - gap > Open[PREV];
+        _result = sar_0 - gap > open_0;
+        _result |= sar_1 - gap > open_1;
         if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= sar_1 + gap < this.Chart().GetAsk();
+          if (METHOD(_method, 0)) _result &= sar_1 + gap < Market().GetAsk();
           if (METHOD(_method, 1)) _result &= sar_0 > sar_1;
           if (METHOD(_method, 2)) _result &= sar_1 - sar_0 <= sar_2 - sar_1;
-          if (METHOD(_method, 3)) _result &= sar_2 < this.Chart().GetAsk();
-          if (METHOD(_method, 4)) _result &= sar_0 >= Close[CURR];
-          if (METHOD(_method, 5)) _result &= sar_1 < Close[PREV];
-          if (METHOD(_method, 6)) _result &= sar_1 < Open[PREV];
+          if (METHOD(_method, 3)) _result &= sar_2 < Market().GetAsk();
+          if (METHOD(_method, 4)) _result &= sar_0 >= close_0;
+          if (METHOD(_method, 5)) _result &= sar_1 < close_1;
+          if (METHOD(_method, 6)) _result &= sar_1 < open_1;
         }
         break;
     }
@@ -162,9 +168,22 @@ class Stg_SAR : public Strategy {
     int _direction = Order::OrderDirection(_cmd) * (_mode == LIMIT_VALUE_STOP ? -1 : 1);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
     double _result = _default_value;
+    double sar_0 = ((Indi_SAR *) Data()).GetValue(0);
+    double sar_1 = ((Indi_SAR *) Data()).GetValue(1);
+    double sar_2 = ((Indi_SAR *) Data()).GetValue(2);
+    double gap = _level * Market().GetPipSize();
+    double _diff = 0;
     switch (_method) {
       case 0: {
-        // @todo
+        _diff = fabs(Chart().GetOpen(0) - sar_0);
+        _result = Chart().GetOpen(0) + (_diff + _trail) * _direction;
+      }
+      case 1: {
+        _diff = fmax(
+          fabs(Chart().GetOpen(0) - fmax(sar_0, sar_1)),
+          fabs(Chart().GetOpen(0) - fmin(sar_0, sar_1))
+        );
+        _result = Chart().GetOpen(0) + (_diff + _trail) * _direction;
       }
     }
     return _result;
