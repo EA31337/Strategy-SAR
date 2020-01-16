@@ -68,30 +68,32 @@ class Stg_SAR : public Strategy {
   static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
     Stg_SAR_Params _params;
-    switch (_tf) {
-      case PERIOD_M1: {
-        Stg_SAR_EURUSD_M1_Params _new_params;
-        _params = _new_params;
-      }
-      case PERIOD_M5: {
-        Stg_SAR_EURUSD_M5_Params _new_params;
-        _params = _new_params;
-      }
-      case PERIOD_M15: {
-        Stg_SAR_EURUSD_M15_Params _new_params;
-        _params = _new_params;
-      }
-      case PERIOD_M30: {
-        Stg_SAR_EURUSD_M30_Params _new_params;
-        _params = _new_params;
-      }
-      case PERIOD_H1: {
-        Stg_SAR_EURUSD_H1_Params _new_params;
-        _params = _new_params;
-      }
-      case PERIOD_H4: {
-        Stg_SAR_EURUSD_H4_Params _new_params;
-        _params = _new_params;
+    if (!Terminal::IsOptimization()) {
+      switch (_tf) {
+        case PERIOD_M1: {
+          Stg_SAR_EURUSD_M1_Params _new_params;
+          _params = _new_params;
+        }
+        case PERIOD_M5: {
+          Stg_SAR_EURUSD_M5_Params _new_params;
+          _params = _new_params;
+        }
+        case PERIOD_M15: {
+          Stg_SAR_EURUSD_M15_Params _new_params;
+          _params = _new_params;
+        }
+        case PERIOD_M30: {
+          Stg_SAR_EURUSD_M30_Params _new_params;
+          _params = _new_params;
+        }
+        case PERIOD_H1: {
+          Stg_SAR_EURUSD_H1_Params _new_params;
+          _params = _new_params;
+        }
+        case PERIOD_H4: {
+          Stg_SAR_EURUSD_H4_Params _new_params;
+          _params = _new_params;
+        }
       }
     }
     // Initialize strategy parameters.
