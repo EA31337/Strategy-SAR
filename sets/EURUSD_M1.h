@@ -13,11 +13,11 @@ struct Stg_SAR_EURUSD_M1_Params : Stg_SAR_Params {
     SAR_Maximum_Stop = 0.4;
     SAR_Shift = 0;
     SAR_SignalOpenMethod = 0;
-    SAR_SignalOpenLevel = 36;
+    SAR_SignalOpenLevel = 12;
     SAR_SignalCloseMethod = 0;
-    SAR_SignalCloseLevel = 36;
+    SAR_SignalCloseLevel = 0;
     SAR_PriceLimitMethod = 0;
     SAR_PriceLimitLevel = 0;
     SAR_MaxSpread = 2;
   }
-};
+} stg_sar_m1;

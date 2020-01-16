@@ -69,32 +69,7 @@ class Stg_SAR : public Strategy {
     // Initialize strategy initial values.
     Stg_SAR_Params _params;
     if (!Terminal::IsOptimization()) {
-      switch (_tf) {
-        case PERIOD_M1: {
-          Stg_SAR_EURUSD_M1_Params _new_params;
-          _params = _new_params;
-        }
-        case PERIOD_M5: {
-          Stg_SAR_EURUSD_M5_Params _new_params;
-          _params = _new_params;
-        }
-        case PERIOD_M15: {
-          Stg_SAR_EURUSD_M15_Params _new_params;
-          _params = _new_params;
-        }
-        case PERIOD_M30: {
-          Stg_SAR_EURUSD_M30_Params _new_params;
-          _params = _new_params;
-        }
-        case PERIOD_H1: {
-          Stg_SAR_EURUSD_H1_Params _new_params;
-          _params = _new_params;
-        }
-        case PERIOD_H4: {
-          Stg_SAR_EURUSD_H4_Params _new_params;
-          _params = _new_params;
-        }
-      }
+      SetParamsByTf<Stg_SAR_Params>(_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1, stg_sar_h4, stg_sar_h4);
     }
     // Initialize strategy parameters.
     ChartParams cparams(_tf);
@@ -170,6 +145,7 @@ class Stg_SAR : public Strategy {
     int _direction = Order::OrderDirection(_cmd) * (_mode == LIMIT_VALUE_STOP ? -1 : 1);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
     double _result = _default_value;
+    double open_0 = Chart().GetOpen(0);
     double sar_0 = ((Indi_SAR *) Data()).GetValue(0);
     double sar_1 = ((Indi_SAR *) Data()).GetValue(1);
     double sar_2 = ((Indi_SAR *) Data()).GetValue(2);
@@ -177,15 +153,15 @@ class Stg_SAR : public Strategy {
     double _diff = 0;
     switch (_method) {
       case 0: {
-        _diff = fabs(Chart().GetOpen(0) - sar_0);
-        _result = Chart().GetOpen(0) + (_diff + _trail) * _direction;
+        _diff = fabs(open_0 - sar_0);
+        _result = open_0 + (_diff + _trail) * _direction;
       }
       case 1: {
         _diff = fmax(
-          fabs(Chart().GetOpen(0) - fmax(sar_0, sar_1)),
-          fabs(Chart().GetOpen(0) - fmin(sar_0, sar_1))
+          fabs(open_0 - fmax(sar_0, sar_1)),
+          fabs(open_0 - fmin(sar_0, sar_1))
         );
-        _result = Chart().GetOpen(0) + (_diff + _trail) * _direction;
+        _result = open_0 + (_diff + _trail) * _direction;
       }
     }
     return _result;
