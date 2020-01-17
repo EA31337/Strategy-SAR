@@ -36,6 +36,9 @@ input bool Info_On_Chart = true;          // Display info on chart.
 #property link ea_link
 #property copyright "Copyright 2016-2019, 31337 Investments Ltd"
 
+// Load config includes.
+#include "config/EA_Params.h"
+
 // Class variables.
 EA *ea;
 
@@ -48,9 +51,8 @@ EA *ea;
  */
 int OnInit() {
   bool _result = true;
-  EAParams ea_params(__FILE__, Log_Level);
-  ea_params.SetChartInfoFreq(Info_On_Chart ? 2 : 0);
-  ea = new EA(ea_params);
+  Stg_SAR_EA_Params _ea_params;
+  ea = new EA(_ea_params);
   _result &= ea.StrategyAdd<Stg_SAR>(Active_Tfs);
   return (_result ? INIT_SUCCEEDED : INIT_FAILED);
 }
