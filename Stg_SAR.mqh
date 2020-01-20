@@ -21,6 +21,7 @@ INPUT int SAR_Shift = 0;                                        // Shift
 INPUT int SAR_SignalOpenMethod = 91;                            // Signal open method (-127-127)
 INPUT double SAR_SignalOpenLevel = 0;                           // Signal open level
 INPUT int SAR_SignalOpenFilterMethod = 0;                       // Signal open filter method
+INPUT int SAR_SignalOpenBoostMethod = 0.0;                      // Signal open boost method
 INPUT int SAR_SignalCloseMethod = 91;                           // Signal close method (-127-127)
 INPUT double SAR_SignalCloseLevel = 0;                          // Signal close level
 INPUT int SAR_PriceLimitMethod = 0;                             // Price limit method
@@ -35,6 +36,7 @@ struct Stg_SAR_Params : Stg_Params {
   int SAR_SignalOpenMethod;
   double SAR_SignalOpenLevel;
   int SAR_SignalOpenFilterMethod;
+  int SAR_SignalOpenBoostMethod;
   int SAR_SignalCloseMethod;
   double SAR_SignalCloseLevel;
   int SAR_PriceLimitMethod;
@@ -49,6 +51,7 @@ struct Stg_SAR_Params : Stg_Params {
         SAR_SignalOpenMethod(::SAR_SignalOpenMethod),
         SAR_SignalOpenLevel(::SAR_SignalOpenLevel),
         SAR_SignalOpenFilterMethod(::SAR_SignalOpenFilterMethod),
+        SAR_SignalOpenBoostMethod(::SAR_SignalOpenBoostMethod),
         SAR_SignalCloseMethod(::SAR_SignalCloseMethod),
         SAR_SignalCloseLevel(::SAR_SignalCloseLevel),
         SAR_PriceLimitMethod(::SAR_PriceLimitMethod),
@@ -72,7 +75,8 @@ class Stg_SAR : public Strategy {
     // Initialize strategy initial values.
     Stg_SAR_Params _params;
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Stg_SAR_Params>(_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1, stg_sar_h4, stg_sar_h4);
+      SetParamsByTf<Stg_SAR_Params>(_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1,
+                                    stg_sar_h4, stg_sar_h4);
     }
     // Initialize strategy parameters.
     ChartParams cparams(_tf);
@@ -81,9 +85,8 @@ class Stg_SAR : public Strategy {
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_SAR(sar_params, sar_iparams, cparams), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
-    sparams.SetSignals(_params.SAR_SignalOpenMethod, _params.SAR_SignalOpenLevel, _params.SAR_SignalCloseMethod,
-                       _params.SAR_SignalCloseLevel);
-    sparams.SetFilters(_params.SAR_SignalOpenFilterMethod);
+    sparams.SetSignals(_params.SAR_SignalOpenMethod, _params.SAR_SignalOpenLevel, _params.SAR_SignalOpenFilterMethod,
+                       _params.SAR_SignalOpenBoostMethod, _params.SAR_SignalCloseMethod, _params.SAR_SignalCloseLevel);
     sparams.SetMaxSpread(_params.SAR_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_SAR(sparams, "SAR");
@@ -99,9 +102,9 @@ class Stg_SAR : public Strategy {
     double open_1 = Chart().GetOpen(1);
     double close_0 = Chart().GetClose(0);
     double close_1 = Chart().GetClose(1);
-    double sar_0 = ((Indi_SAR *) Data()).GetValue(0);
-    double sar_1 = ((Indi_SAR *) Data()).GetValue(1);
-    double sar_2 = ((Indi_SAR *) Data()).GetValue(2);
+    double sar_0 = ((Indi_SAR *)Data()).GetValue(0);
+    double sar_1 = ((Indi_SAR *)Data()).GetValue(1);
+    double sar_2 = ((Indi_SAR *)Data()).GetValue(2);
     double gap = _level * Market().GetPipSize();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
@@ -140,12 +143,28 @@ class Stg_SAR : public Strategy {
   bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
     bool _result = true;
     if (_method != 0) {
-      //if (METHOD(_method, 0)) _result &= Trade().IsTrend(_cmd);
-      //if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
-      //if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
-      //if (METHOD(_method, 3)) _result &= Trade().IsRoundNumber(_cmd);
-      //if (METHOD(_method, 4)) _result &= Trade().IsHedging(_cmd);
-      //if (METHOD(_method, 5)) _result &= Trade().IsPeakBar(_cmd);
+      // if (METHOD(_method, 0)) _result &= Trade().IsTrend(_cmd);
+      // if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
+      // if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
+      // if (METHOD(_method, 3)) _result &= Trade().IsRoundNumber(_cmd);
+      // if (METHOD(_method, 4)) _result &= Trade().IsHedging(_cmd);
+      // if (METHOD(_method, 5)) _result &= Trade().IsPeakBar(_cmd);
+    }
+    return _result;
+  }
+
+  /**
+   * Gets strategy's lot size boost (when enabled).
+   */
+  double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+    bool _result = 1.0;
+    if (_method != 0) {
+      // if (METHOD(_method, 0)) if (Trade().IsTrend(_cmd)) _result *= 1.1;
+      // if (METHOD(_method, 1)) if (Trade().IsPivot(_cmd)) _result *= 1.1;
+      // if (METHOD(_method, 2)) if (Trade().IsPeakHours(_cmd)) _result *= 1.1;
+      // if (METHOD(_method, 3)) if (Trade().IsRoundNumber(_cmd)) _result *= 1.1;
+      // if (METHOD(_method, 4)) if (Trade().IsHedging(_cmd)) _result *= 1.1;
+      // if (METHOD(_method, 5)) if (Trade().IsPeakBar(_cmd)) _result *= 1.1;
     }
     return _result;
   }
@@ -166,9 +185,9 @@ class Stg_SAR : public Strategy {
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
     double _result = _default_value;
     double open_0 = Chart().GetOpen(0);
-    double sar_0 = ((Indi_SAR *) Data()).GetValue(0);
-    double sar_1 = ((Indi_SAR *) Data()).GetValue(1);
-    double sar_2 = ((Indi_SAR *) Data()).GetValue(2);
+    double sar_0 = ((Indi_SAR *)Data()).GetValue(0);
+    double sar_1 = ((Indi_SAR *)Data()).GetValue(1);
+    double sar_2 = ((Indi_SAR *)Data()).GetValue(2);
     double gap = _level * Market().GetPipSize();
     double _diff = 0;
     switch (_method) {
@@ -177,10 +196,7 @@ class Stg_SAR : public Strategy {
         _result = open_0 + (_diff + _trail) * _direction;
       }
       case 1: {
-        _diff = fmax(
-          fabs(open_0 - fmax(sar_0, sar_1)),
-          fabs(open_0 - fmin(sar_0, sar_1))
-        );
+        _diff = fmax(fabs(open_0 - fmax(sar_0, sar_1)), fabs(open_0 - fmin(sar_0, sar_1)));
         _result = open_0 + (_diff + _trail) * _direction;
       }
     }
