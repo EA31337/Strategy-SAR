@@ -20,6 +20,7 @@ INPUT double SAR_Maximum_Stop = 0.4;                            // Maximum stop
 INPUT int SAR_Shift = 0;                                        // Shift
 INPUT int SAR_SignalOpenMethod = 91;                            // Signal open method (-127-127)
 INPUT double SAR_SignalOpenLevel = 0;                           // Signal open level
+INPUT int SAR_SignalOpenFilterMethod = 0;                       // Signal open filter method
 INPUT int SAR_SignalCloseMethod = 91;                           // Signal close method (-127-127)
 INPUT double SAR_SignalCloseLevel = 0;                          // Signal close level
 INPUT int SAR_PriceLimitMethod = 0;                             // Price limit method
@@ -33,6 +34,7 @@ struct Stg_SAR_Params : Stg_Params {
   int SAR_Shift;
   int SAR_SignalOpenMethod;
   double SAR_SignalOpenLevel;
+  int SAR_SignalOpenFilterMethod;
   int SAR_SignalCloseMethod;
   double SAR_SignalCloseLevel;
   int SAR_PriceLimitMethod;
@@ -46,6 +48,7 @@ struct Stg_SAR_Params : Stg_Params {
         SAR_Shift(::SAR_Shift),
         SAR_SignalOpenMethod(::SAR_SignalOpenMethod),
         SAR_SignalOpenLevel(::SAR_SignalOpenLevel),
+        SAR_SignalOpenFilterMethod(::SAR_SignalOpenFilterMethod),
         SAR_SignalCloseMethod(::SAR_SignalCloseMethod),
         SAR_SignalCloseLevel(::SAR_SignalCloseLevel),
         SAR_PriceLimitMethod(::SAR_PriceLimitMethod),
@@ -80,6 +83,7 @@ class Stg_SAR : public Strategy {
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.SAR_SignalOpenMethod, _params.SAR_SignalOpenLevel, _params.SAR_SignalCloseMethod,
                        _params.SAR_SignalCloseLevel);
+    sparams.SetFilters(_params.SAR_SignalOpenFilterMethod);
     sparams.SetMaxSpread(_params.SAR_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_SAR(sparams, "SAR");
@@ -126,6 +130,22 @@ class Stg_SAR : public Strategy {
           if (METHOD(_method, 6)) _result &= sar_1 < open_1;
         }
         break;
+    }
+    return _result;
+  }
+
+  /**
+   * Check strategy's opening signal additional filter.
+   */
+  bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
+    bool _result = true;
+    if (_method != 0) {
+      //if (METHOD(_method, 0)) _result &= Trade().IsTrend(_cmd);
+      //if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
+      //if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
+      //if (METHOD(_method, 3)) _result &= Trade().IsRoundNumber(_cmd);
+      //if (METHOD(_method, 4)) _result &= Trade().IsHedging(_cmd);
+      //if (METHOD(_method, 5)) _result &= Trade().IsPeakBar(_cmd);
     }
     return _result;
   }

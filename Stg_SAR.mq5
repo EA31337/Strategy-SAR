@@ -9,6 +9,9 @@
  * Implements SAR strategy.
  */
 
+// Enables debugging.
+//#define __debug__
+
 // Includes EA31337 framework.
 #include <EA31337-classes/EA.mqh>
 
