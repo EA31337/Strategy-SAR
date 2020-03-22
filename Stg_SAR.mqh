@@ -96,42 +96,39 @@ class Stg_SAR : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
-    bool _result = false;
-    double open_0 = Chart().GetOpen(0);
-    double open_1 = Chart().GetOpen(1);
-    double close_0 = Chart().GetClose(0);
-    double close_1 = Chart().GetClose(1);
-    double sar_0 = ((Indi_SAR *)Data()).GetValue(0);
-    double sar_1 = ((Indi_SAR *)Data()).GetValue(1);
-    double sar_2 = ((Indi_SAR *)Data()).GetValue(2);
-    double gap = _level * Market().GetPipSize();
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:
-        _result = sar_0 + gap < open_0;
-        _result |= sar_1 + gap < open_1;
-        if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= sar_1 - gap > Market().GetAsk();
-          if (METHOD(_method, 1)) _result &= sar_0 < sar_1;
-          if (METHOD(_method, 2)) _result &= sar_0 - sar_1 <= sar_1 - sar_2;
-          if (METHOD(_method, 3)) _result &= sar_2 > Market().GetAsk();
-          if (METHOD(_method, 4)) _result &= sar_0 <= close_0;
-          if (METHOD(_method, 5)) _result &= sar_1 > close_1;
-          if (METHOD(_method, 6)) _result &= sar_1 > open_1;
-        }
-        break;
-      case ORDER_TYPE_SELL:
-        _result = sar_0 - gap > open_0;
-        _result |= sar_1 - gap > open_1;
-        if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= sar_1 + gap < Market().GetAsk();
-          if (METHOD(_method, 1)) _result &= sar_0 > sar_1;
-          if (METHOD(_method, 2)) _result &= sar_1 - sar_0 <= sar_2 - sar_1;
-          if (METHOD(_method, 3)) _result &= sar_2 < Market().GetAsk();
-          if (METHOD(_method, 4)) _result &= sar_0 >= close_0;
-          if (METHOD(_method, 5)) _result &= sar_1 < close_1;
-          if (METHOD(_method, 6)) _result &= sar_1 < open_1;
-        }
-        break;
+    Indicator *_indi = Data();
+    bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
+    bool _result = _is_valid;
+    if (_is_valid) {
+      double level = _level * Chart().GetPipSize();
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          _result = _indi[CURR].value[0] + level < Chart().GetOpen(0);
+          _result |= _indi[PREV].value[0] + level < Chart().GetOpen(1);
+          if (_method != 0) {
+            if (METHOD(_method, 0)) _result &= _indi[PREV].value[0] - level > Market().GetAsk();
+            if (METHOD(_method, 1)) _result &= _indi[CURR].value[0] < _indi[PREV].value[0];
+            if (METHOD(_method, 2)) _result &= _indi[CURR].value[0] - _indi[PREV].value[0] <= _indi[PREV].value[0] - _indi[PPREV].value[0];
+            if (METHOD(_method, 3)) _result &= _indi[PPREV].value[0] > Market().GetAsk();
+            if (METHOD(_method, 4)) _result &= _indi[CURR].value[0] <= Chart().GetClose(0);
+            if (METHOD(_method, 5)) _result &= _indi[PREV].value[0] > Chart().GetClose(1);
+            if (METHOD(_method, 6)) _result &= _indi[PREV].value[0] > Chart().GetOpen(1);
+          }
+          break;
+        case ORDER_TYPE_SELL:
+          _result = _indi[CURR].value[0] - level > Chart().GetOpen(0);
+          _result |= _indi[PREV].value[0] - level > Chart().GetOpen(1);
+          if (_method != 0) {
+            if (METHOD(_method, 0)) _result &= _indi[PREV].value[0] + level < Market().GetAsk();
+            if (METHOD(_method, 1)) _result &= _indi[CURR].value[0] > _indi[PREV].value[0];
+            if (METHOD(_method, 2)) _result &= _indi[PREV].value[0] - _indi[CURR].value[0] <= _indi[PPREV].value[0] - _indi[PREV].value[0];
+            if (METHOD(_method, 3)) _result &= _indi[PPREV].value[0] < Market().GetAsk();
+            if (METHOD(_method, 4)) _result &= _indi[CURR].value[0] >= Chart().GetClose(0);
+            if (METHOD(_method, 5)) _result &= _indi[PREV].value[0] < Chart().GetClose(1);
+            if (METHOD(_method, 6)) _result &= _indi[PREV].value[0] < Chart().GetOpen(1);
+          }
+          break;
+      }
     }
     return _result;
   }
@@ -179,23 +176,21 @@ class Stg_SAR : public Strategy {
    * Gets price limit value for profit take or stop loss.
    */
   double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
+    Indicator *_indi = Data();
     double _trail = _level * Market().GetPipSize();
-    int _direction = Order::OrderDirection(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
+    int _direction = Order::OrderDirection(_cmd, _mode);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
     double _result = _default_value;
     double open_0 = Chart().GetOpen(0);
-    double sar_0 = ((Indi_SAR *)Data()).GetValue(0);
-    double sar_1 = ((Indi_SAR *)Data()).GetValue(1);
-    double sar_2 = ((Indi_SAR *)Data()).GetValue(2);
     double gap = _level * Market().GetPipSize();
     double _diff = 0;
     switch (_method) {
       case 0:
-        _diff = fabs(open_0 - sar_0);
+        _diff = fabs(open_0 - _indi[CURR].value[0]);
         _result = open_0 + (_diff + _trail) * _direction;
         break;
       case 1:
-        _diff = fmax(fabs(open_0 - fmax(sar_0, sar_1)), fabs(open_0 - fmin(sar_0, sar_1)));
+        _diff = fmax(fabs(open_0 - fmax(_indi[CURR].value[0], _indi[PREV].value[0])), fabs(open_0 - fmin(_indi[CURR].value[0], _indi[PREV].value[0])));
         _result = open_0 + (_diff + _trail) * _direction;
         break;
     }
