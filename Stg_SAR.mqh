@@ -97,7 +97,7 @@ class Stg_SAR : public Strategy {
    * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
-    Indicator *_indi = Data();
+    Indi_SAR *_indi = Data();
     bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
     bool _result = _is_valid;
     if (_is_valid) {
@@ -177,7 +177,8 @@ class Stg_SAR : public Strategy {
    * Gets price limit value for profit take or stop loss.
    */
   double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
-    Indicator *_indi = Data();
+    Indi_SAR *_indi = Data();
+    bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
@@ -185,15 +186,22 @@ class Stg_SAR : public Strategy {
     double open_0 = Chart().GetOpen(0);
     double gap = _level * Market().GetPipSize();
     double _diff = 0;
-    switch (_method) {
-      case 0:
-        _diff = fabs(open_0 - _indi[CURR].value[0]);
-        _result = open_0 + (_diff + _trail) * _direction;
-        break;
-      case 1:
-        _diff = fmax(fabs(open_0 - fmax(_indi[CURR].value[0], _indi[PREV].value[0])), fabs(open_0 - fmin(_indi[CURR].value[0], _indi[PREV].value[0])));
-        _result = open_0 + (_diff + _trail) * _direction;
-        break;
+    if (_is_valid) {
+      switch (_method) {
+        case 0:
+          _diff = fabs(open_0 - _indi[CURR].value[0]);
+          _result = open_0 + (_diff + _trail) * _direction;
+          break;
+        case 1:
+          _diff = fmax(fabs(open_0 - fmax(_indi[CURR].value[0], _indi[PREV].value[0])), fabs(open_0 - fmin(_indi[CURR].value[0], _indi[PREV].value[0])));
+          _result = open_0 + (_diff + _trail) * _direction;
+          break;
+        case 2: {
+          int _bar_count = (int) _level * 10;
+          _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count)) : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
+          break;
+        }
+      }
     }
     return _result;
   }
