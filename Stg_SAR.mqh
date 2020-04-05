@@ -86,6 +86,7 @@ class Stg_SAR : public Strategy {
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.SAR_SignalOpenMethod, _params.SAR_SignalOpenLevel, _params.SAR_SignalOpenFilterMethod,
                        _params.SAR_SignalOpenBoostMethod, _params.SAR_SignalCloseMethod, _params.SAR_SignalCloseLevel);
+    sparams.SetPriceLimits(_params.SAR_PriceLimitMethod, _params.SAR_PriceLimitLevel);
     sparams.SetMaxSpread(_params.SAR_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_SAR(sparams, "SAR");
