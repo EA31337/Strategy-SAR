@@ -5,7 +5,7 @@
 //+------------------------------------------------------------------+
 
 // Defines EA parameter values.
-struct Stg_SAR_EA_Params : EA_Params {
+struct Stg_SAR_EA_Params : EAParams {
   Stg_SAR_EA_Params() {
     name = ea_name;
     magic_no = rand();

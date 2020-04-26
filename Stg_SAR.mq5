@@ -40,7 +40,7 @@ input bool Info_On_Chart = true;          // Display info on chart.
 #property copyright "Copyright 2016-2020, 31337 Investments Ltd"
 
 // Load config includes.
-#include "config/EA_Params.h"
+#include "config/params.h"
 
 // Class variables.
 EA *ea;
