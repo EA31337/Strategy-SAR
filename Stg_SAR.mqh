@@ -82,7 +82,7 @@ class Stg_SAR : public Strategy {
     SARParams sar_params(_params.SAR_Step, _params.SAR_Maximum_Stop);
     sar_params.SetTf(_tf);
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_SAR(sar_params), NULL, NULL);
-    sparams.logger.SetLevel(_log_level);
+    sparams.logger.Ptr().SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.SAR_SignalOpenMethod, _params.SAR_SignalOpenLevel, _params.SAR_SignalOpenFilterMethod,
                        _params.SAR_SignalOpenBoostMethod, _params.SAR_SignalCloseMethod, _params.SAR_SignalCloseLevel);
