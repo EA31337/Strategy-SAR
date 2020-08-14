@@ -7,8 +7,8 @@
 // Defines strategy's parameter values for the given pair symbol and timeframe.
 struct Stg_SAR_EURUSD_M30_Params : Stg_SAR_Params {
   Stg_SAR_EURUSD_M30_Params() {
-    SAR_Step = 0.05;
-    SAR_Maximum_Stop = 0.4;
+    SAR_Step = 0.05f;
+    SAR_Maximum_Stop = 0.4f;
     SAR_Shift = 0;
     SAR_SignalOpenMethod = 16;
     SAR_SignalOpenLevel = 0;

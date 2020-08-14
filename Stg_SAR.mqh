@@ -4,18 +4,18 @@
  */
 
 // User input params.
-INPUT float SAR_Step = 0.05;              // Step
-INPUT float SAR_Maximum_Stop = 0.4;       // Maximum stop
+INPUT float SAR_Step = 0.05f;              // Step
+INPUT float SAR_Maximum_Stop = 0.4f;       // Maximum stop
 INPUT int SAR_Shift = 0;                   // Shift
 INPUT int SAR_SignalOpenMethod = 91;       // Signal open method (-127-127)
-INPUT float SAR_SignalOpenLevel = 0;      // Signal open level
+INPUT float SAR_SignalOpenLevel = 0;       // Signal open level
 INPUT int SAR_SignalOpenFilterMethod = 0;  // Signal open filter method
 INPUT int SAR_SignalOpenBoostMethod = 0;   // Signal open boost method
 INPUT int SAR_SignalCloseMethod = 91;      // Signal close method (-127-127)
-INPUT float SAR_SignalCloseLevel = 0;     // Signal close level
+INPUT float SAR_SignalCloseLevel = 0;      // Signal close level
 INPUT int SAR_PriceLimitMethod = 0;        // Price limit method
-INPUT float SAR_PriceLimitLevel = 0;      // Price limit level
-INPUT float SAR_MaxSpread = 6.0;          // Max spread to trade (pips)
+INPUT float SAR_PriceLimitLevel = 0;       // Price limit level
+INPUT float SAR_MaxSpread = 6.0;           // Max spread to trade (pips)
 
 // Includes.
 #include <EA31337-classes/Indicators/Indi_SAR.mqh>
@@ -23,18 +23,18 @@ INPUT float SAR_MaxSpread = 6.0;          // Max spread to trade (pips)
 
 // Struct to define strategy parameters to override.
 struct Stg_SAR_Params : StgParams {
-  double SAR_Step;
-  double SAR_Maximum_Stop;
+  float SAR_Step;
+  float SAR_Maximum_Stop;
   int SAR_Shift;
   int SAR_SignalOpenMethod;
-  double SAR_SignalOpenLevel;
+  float SAR_SignalOpenLevel;
   int SAR_SignalOpenFilterMethod;
   int SAR_SignalOpenBoostMethod;
   int SAR_SignalCloseMethod;
-  double SAR_SignalCloseLevel;
+  float SAR_SignalCloseLevel;
   int SAR_PriceLimitMethod;
-  double SAR_PriceLimitLevel;
-  double SAR_MaxSpread;
+  float SAR_PriceLimitLevel;
+  float SAR_MaxSpread;
 
   // Constructor: Set default param values.
   Stg_SAR_Params()
@@ -161,6 +161,6 @@ class Stg_SAR : public Strategy {
         }
       }
     }
-    return _result;
+    return (float)_result;
   }
 };
