@@ -1,32 +1,25 @@
-//+------------------------------------------------------------------+
-//|                  EA31337 - multi-strategy advanced trading robot |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
-//|                                       https://github.com/EA31337 |
-//+------------------------------------------------------------------+
-
 /**
  * @file
  * Implements SAR strategy based on the Parabolic Stop and Reverse system indicator.
  */
 
+// User input params.
+INPUT float SAR_Step = 0.05;              // Step
+INPUT float SAR_Maximum_Stop = 0.4;       // Maximum stop
+INPUT int SAR_Shift = 0;                   // Shift
+INPUT int SAR_SignalOpenMethod = 91;       // Signal open method (-127-127)
+INPUT float SAR_SignalOpenLevel = 0;      // Signal open level
+INPUT int SAR_SignalOpenFilterMethod = 0;  // Signal open filter method
+INPUT int SAR_SignalOpenBoostMethod = 0;   // Signal open boost method
+INPUT int SAR_SignalCloseMethod = 91;      // Signal close method (-127-127)
+INPUT float SAR_SignalCloseLevel = 0;     // Signal close level
+INPUT int SAR_PriceLimitMethod = 0;        // Price limit method
+INPUT float SAR_PriceLimitLevel = 0;      // Price limit level
+INPUT float SAR_MaxSpread = 6.0;          // Max spread to trade (pips)
+
 // Includes.
 #include <EA31337-classes/Indicators/Indi_SAR.mqh>
 #include <EA31337-classes/Strategy.mqh>
-
-// User input params.
-INPUT string __SAR_Parameters__ = "-- SAR strategy params --";  // >>> SAR <<<
-INPUT double SAR_Step = 0.05;                                   // Step
-INPUT double SAR_Maximum_Stop = 0.4;                            // Maximum stop
-INPUT int SAR_Shift = 0;                                        // Shift
-INPUT int SAR_SignalOpenMethod = 91;                            // Signal open method (-127-127)
-INPUT double SAR_SignalOpenLevel = 0;                           // Signal open level
-INPUT int SAR_SignalOpenFilterMethod = 0;                       // Signal open filter method
-INPUT int SAR_SignalOpenBoostMethod = 0;                        // Signal open boost method
-INPUT int SAR_SignalCloseMethod = 91;                           // Signal close method (-127-127)
-INPUT double SAR_SignalCloseLevel = 0;                          // Signal close level
-INPUT int SAR_PriceLimitMethod = 0;                             // Price limit method
-INPUT double SAR_PriceLimitLevel = 0;                           // Price limit level
-INPUT double SAR_MaxSpread = 6.0;                               // Max spread to trade (pips)
 
 // Struct to define strategy parameters to override.
 struct Stg_SAR_Params : StgParams {
@@ -96,7 +89,7 @@ class Stg_SAR : public Strategy {
   /**
    * Check strategy's opening signal.
    */
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0) {
     Indi_SAR *_indi = Data();
     bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
     bool _result = _is_valid;
@@ -109,7 +102,8 @@ class Stg_SAR : public Strategy {
           if (_method != 0) {
             if (METHOD(_method, 0)) _result &= _indi[PREV].value[0] - level > Market().GetAsk();
             if (METHOD(_method, 1)) _result &= _indi[CURR].value[0] < _indi[PREV].value[0];
-            if (METHOD(_method, 2)) _result &= _indi[CURR].value[0] - _indi[PREV].value[0] <= _indi[PREV].value[0] - _indi[PPREV].value[0];
+            if (METHOD(_method, 2))
+              _result &= _indi[CURR].value[0] - _indi[PREV].value[0] <= _indi[PREV].value[0] - _indi[PPREV].value[0];
             if (METHOD(_method, 3)) _result &= _indi[PPREV].value[0] > Market().GetAsk();
             if (METHOD(_method, 4)) _result &= _indi[CURR].value[0] <= Chart().GetClose(0);
             if (METHOD(_method, 5)) _result &= _indi[PREV].value[0] > Chart().GetClose(1);
@@ -122,7 +116,8 @@ class Stg_SAR : public Strategy {
           if (_method != 0) {
             if (METHOD(_method, 0)) _result &= _indi[PREV].value[0] + level < Market().GetAsk();
             if (METHOD(_method, 1)) _result &= _indi[CURR].value[0] > _indi[PREV].value[0];
-            if (METHOD(_method, 2)) _result &= _indi[PREV].value[0] - _indi[CURR].value[0] <= _indi[PPREV].value[0] - _indi[PREV].value[0];
+            if (METHOD(_method, 2))
+              _result &= _indi[PREV].value[0] - _indi[CURR].value[0] <= _indi[PPREV].value[0] - _indi[PREV].value[0];
             if (METHOD(_method, 3)) _result &= _indi[PPREV].value[0] < Market().GetAsk();
             if (METHOD(_method, 4)) _result &= _indi[CURR].value[0] >= Chart().GetClose(0);
             if (METHOD(_method, 5)) _result &= _indi[PREV].value[0] < Chart().GetClose(1);
@@ -135,48 +130,9 @@ class Stg_SAR : public Strategy {
   }
 
   /**
-   * Check strategy's opening signal additional filter.
-   */
-  bool SignalOpenFilter(ENUM_ORDER_TYPE _cmd, int _method = 0) {
-    bool _result = true;
-    if (_method != 0) {
-      // if (METHOD(_method, 0)) _result &= Trade().IsTrend(_cmd);
-      // if (METHOD(_method, 1)) _result &= Trade().IsPivot(_cmd);
-      // if (METHOD(_method, 2)) _result &= Trade().IsPeakHours(_cmd);
-      // if (METHOD(_method, 3)) _result &= Trade().IsRoundNumber(_cmd);
-      // if (METHOD(_method, 4)) _result &= Trade().IsHedging(_cmd);
-      // if (METHOD(_method, 5)) _result &= Trade().IsPeakBar(_cmd);
-    }
-    return _result;
-  }
-
-  /**
-   * Gets strategy's lot size boost (when enabled).
-   */
-  double SignalOpenBoost(ENUM_ORDER_TYPE _cmd, int _method = 0) {
-    bool _result = 1.0;
-    if (_method != 0) {
-      // if (METHOD(_method, 0)) if (Trade().IsTrend(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 1)) if (Trade().IsPivot(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 2)) if (Trade().IsPeakHours(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 3)) if (Trade().IsRoundNumber(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 4)) if (Trade().IsHedging(_cmd)) _result *= 1.1;
-      // if (METHOD(_method, 5)) if (Trade().IsPeakBar(_cmd)) _result *= 1.1;
-    }
-    return _result;
-  }
-
-  /**
-   * Check strategy's closing signal.
-   */
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
-    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
-  }
-
-  /**
    * Gets price limit value for profit take or stop loss.
    */
-  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
+  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
     Indi_SAR *_indi = Data();
     bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
     double _trail = _level * Market().GetPipSize();
@@ -193,12 +149,14 @@ class Stg_SAR : public Strategy {
           _result = open_0 + (_diff + _trail) * _direction;
           break;
         case 1:
-          _diff = fmax(fabs(open_0 - fmax(_indi[CURR].value[0], _indi[PREV].value[0])), fabs(open_0 - fmin(_indi[CURR].value[0], _indi[PREV].value[0])));
+          _diff = fmax(fabs(open_0 - fmax(_indi[CURR].value[0], _indi[PREV].value[0])),
+                       fabs(open_0 - fmin(_indi[CURR].value[0], _indi[PREV].value[0])));
           _result = open_0 + (_diff + _trail) * _direction;
           break;
         case 2: {
-          int _bar_count = (int) _level * 10;
-          _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count)) : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
+          int _bar_count = (int)_level * 10;
+          _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count))
+                                   : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
           break;
         }
       }
