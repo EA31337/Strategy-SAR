@@ -3,10 +3,12 @@
  * Implements SAR strategy based on the Parabolic Stop and Reverse system indicator.
  */
 
+// Includes.
+#include <EA31337-classes/Indicators/Indi_SAR.mqh>
+#include <EA31337-classes/Strategy.mqh>
+
 // User input params.
-INPUT float SAR_Step = 0.05f;              // Step
-INPUT float SAR_Maximum_Stop = 0.4f;       // Maximum stop
-INPUT int SAR_Shift = 0;                   // Shift
+INPUT float SAR_LotSize = 0;               // Lot size
 INPUT int SAR_SignalOpenMethod = 91;       // Signal open method (-127-127)
 INPUT float SAR_SignalOpenLevel = 0;       // Signal open level
 INPUT int SAR_SignalOpenFilterMethod = 0;  // Signal open filter method
@@ -15,46 +17,52 @@ INPUT int SAR_SignalCloseMethod = 91;      // Signal close method (-127-127)
 INPUT float SAR_SignalCloseLevel = 0;      // Signal close level
 INPUT int SAR_PriceLimitMethod = 0;        // Price limit method
 INPUT float SAR_PriceLimitLevel = 0;       // Price limit level
+INPUT int SAR_TickFilterMethod = 0;        // Tick filter method
 INPUT float SAR_MaxSpread = 6.0;           // Max spread to trade (pips)
+INPUT int SAR_Shift = 0;                   // Shift
+INPUT string __SAR_Indi_SAR_Parameters__ =
+    "-- SAR strategy: SAR indicator params --";  // >>> SAR strategy: SAR indicator <<<
+INPUT float Indi_SAR_Step = 0.05f;               // Step
+INPUT float Indi_SAR_Maximum_Stop = 0.4f;        // Maximum stop
 
-// Includes.
-#include <EA31337-classes/Indicators/Indi_SAR.mqh>
-#include <EA31337-classes/Strategy.mqh>
+// Structs.
+
+// Defines struct with default user indicator values.
+struct Indi_SAR_Params_Defaults : SARParams {
+  Indi_SAR_Params_Defaults() : SARParams(::Indi_SAR_Step, ::Indi_SAR_Maximum_Stop) {}
+} indi_sar_defaults;
+
+// Defines struct to store indicator parameter values.
+struct Indi_SAR_Params : public SARParams {
+  // Struct constructors.
+  void Indi_SAR_Params(SARParams &_params, ENUM_TIMEFRAMES _tf) : SARParams(_params, _tf) {}
+};
+
+// Defines struct with default user strategy values.
+struct Stg_SAR_Params_Defaults : StgParams {
+  Stg_SAR_Params_Defaults()
+      : StgParams(::SAR_SignalOpenMethod, ::SAR_SignalOpenFilterMethod, ::SAR_SignalOpenLevel,
+                  ::SAR_SignalOpenBoostMethod, ::SAR_SignalCloseMethod, ::SAR_SignalCloseLevel, ::SAR_PriceLimitMethod,
+                  ::SAR_PriceLimitLevel, ::SAR_TickFilterMethod, ::SAR_MaxSpread, ::SAR_Shift) {}
+} stg_sar_defaults;
 
 // Struct to define strategy parameters to override.
 struct Stg_SAR_Params : StgParams {
-  float SAR_Step;
-  float SAR_Maximum_Stop;
-  int SAR_Shift;
-  int SAR_SignalOpenMethod;
-  float SAR_SignalOpenLevel;
-  int SAR_SignalOpenFilterMethod;
-  int SAR_SignalOpenBoostMethod;
-  int SAR_SignalCloseMethod;
-  float SAR_SignalCloseLevel;
-  int SAR_PriceLimitMethod;
-  float SAR_PriceLimitLevel;
-  float SAR_MaxSpread;
+  Indi_SAR_Params iparams;
+  StgParams sparams;
 
-  // Constructor: Set default param values.
-  Stg_SAR_Params()
-      : SAR_Step(::SAR_Step),
-        SAR_Maximum_Stop(::SAR_Maximum_Stop),
-        SAR_Shift(::SAR_Shift),
-        SAR_SignalOpenMethod(::SAR_SignalOpenMethod),
-        SAR_SignalOpenLevel(::SAR_SignalOpenLevel),
-        SAR_SignalOpenFilterMethod(::SAR_SignalOpenFilterMethod),
-        SAR_SignalOpenBoostMethod(::SAR_SignalOpenBoostMethod),
-        SAR_SignalCloseMethod(::SAR_SignalCloseMethod),
-        SAR_SignalCloseLevel(::SAR_SignalCloseLevel),
-        SAR_PriceLimitMethod(::SAR_PriceLimitMethod),
-        SAR_PriceLimitLevel(::SAR_PriceLimitLevel),
-        SAR_MaxSpread(::SAR_MaxSpread) {}
+  // Struct constructors.
+  Stg_SAR_Params(Indi_SAR_Params &_iparams, StgParams &_sparams)
+      : iparams(indi_sar_defaults, _iparams.tf), sparams(stg_sar_defaults) {
+    iparams = _iparams;
+    sparams = _sparams;
+  }
 };
 
 // Loads pair specific param values.
 #include "sets/EURUSD_H1.h"
 #include "sets/EURUSD_H4.h"
+#include "sets/EURUSD_H8.h"
 #include "sets/EURUSD_M1.h"
 #include "sets/EURUSD_M15.h"
 #include "sets/EURUSD_M30.h"
@@ -66,23 +74,24 @@ class Stg_SAR : public Strategy {
 
   static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
-    Stg_SAR_Params _params;
+    Indi_SAR_Params _indi_params(indi_sar_defaults, _tf);
+    StgParams _stg_params(stg_sar_defaults);
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Stg_SAR_Params>(_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1,
-                                    stg_sar_h4, stg_sar_h4);
+      SetParamsByTf<Indi_SAR_Params>(_indi_params, _tf, indi_sar_m1, indi_sar_m5, indi_sar_m15, indi_sar_m30,
+                                     indi_sar_h1, indi_sar_h4, indi_sar_h8);
+      SetParamsByTf<StgParams>(_stg_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1,
+                               stg_sar_h4, stg_sar_h8);
     }
+    // Initialize indicator.
+    SARParams sar_params(_indi_params);
+    _stg_params.SetIndicator(new Indi_SAR(_indi_params));
     // Initialize strategy parameters.
-    SARParams sar_params(_params.SAR_Step, _params.SAR_Maximum_Stop);
-    sar_params.SetTf(_tf);
-    StgParams sparams(new Trade(_tf, _Symbol), new Indi_SAR(sar_params), NULL, NULL);
-    sparams.logger.Ptr().SetLevel(_log_level);
-    sparams.SetMagicNo(_magic_no);
-    sparams.SetSignals(_params.SAR_SignalOpenMethod, _params.SAR_SignalOpenLevel, _params.SAR_SignalOpenFilterMethod,
-                       _params.SAR_SignalOpenBoostMethod, _params.SAR_SignalCloseMethod, _params.SAR_SignalCloseLevel);
-    sparams.SetPriceLimits(_params.SAR_PriceLimitMethod, _params.SAR_PriceLimitLevel);
-    sparams.SetMaxSpread(_params.SAR_MaxSpread);
+    _stg_params.GetLog().SetLevel(_log_level);
+    _stg_params.SetMagicNo(_magic_no);
+    _stg_params.SetTf(_tf, _Symbol);
     // Initialize strategy instance.
-    Strategy *_strat = new Stg_SAR(sparams, "SAR");
+    Strategy *_strat = new Stg_SAR(_stg_params, "SAR");
+    _stg_params.SetStops(_strat, _strat);
     return _strat;
   }
 
