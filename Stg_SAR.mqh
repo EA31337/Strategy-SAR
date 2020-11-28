@@ -153,16 +153,16 @@ class Stg_SAR : public Strategy {
     double _diff = 0;
     if (_is_valid) {
       switch (_method) {
-        case 0:
+        case 1:
           _diff = fabs(open_0 - _indi[CURR].value[0]);
           _result = open_0 + (_diff + _trail) * _direction;
           break;
-        case 1:
+        case 2:
           _diff = fmax(fabs(open_0 - fmax(_indi[CURR].value[0], _indi[PREV].value[0])),
                        fabs(open_0 - fmin(_indi[CURR].value[0], _indi[PREV].value[0])));
           _result = open_0 + (_diff + _trail) * _direction;
           break;
-        case 2: {
+        case 3: {
           int _bar_count = (int)_level * 10;
           _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count))
                                    : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
