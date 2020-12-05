@@ -106,31 +106,29 @@ class Stg_SAR : public Strategy {
       double level = _level * Chart().GetPipSize();
       switch (_cmd) {
         case ORDER_TYPE_BUY:
-          _result = _indi[CURR].value[0] + level < Chart().GetOpen(0);
-          _result |= _indi[PREV].value[0] + level < Chart().GetOpen(1);
+          _result = _indi[CURR][0] + level < Chart().GetOpen(0);
+          _result |= _indi[PREV][0] + level < Chart().GetOpen(1);
           if (_method != 0) {
-            if (METHOD(_method, 0)) _result &= _indi[PREV].value[0] - level > Market().GetAsk();
-            if (METHOD(_method, 1)) _result &= _indi[CURR].value[0] < _indi[PREV].value[0];
-            if (METHOD(_method, 2))
-              _result &= _indi[CURR].value[0] - _indi[PREV].value[0] <= _indi[PREV].value[0] - _indi[PPREV].value[0];
-            if (METHOD(_method, 3)) _result &= _indi[PPREV].value[0] > Market().GetAsk();
-            if (METHOD(_method, 4)) _result &= _indi[CURR].value[0] <= Chart().GetClose(0);
-            if (METHOD(_method, 5)) _result &= _indi[PREV].value[0] > Chart().GetClose(1);
-            if (METHOD(_method, 6)) _result &= _indi[PREV].value[0] > Chart().GetOpen(1);
+            if (METHOD(_method, 0)) _result &= _indi[PREV][0] - level > Market().GetAsk();
+            if (METHOD(_method, 1)) _result &= _indi[CURR][0] < _indi[PREV][0];
+            if (METHOD(_method, 2)) _result &= _indi[CURR][0] - _indi[PREV][0] <= _indi[PREV][0] - _indi[PPREV][0];
+            if (METHOD(_method, 3)) _result &= _indi[PPREV][0] > Market().GetAsk();
+            if (METHOD(_method, 4)) _result &= _indi[CURR][0] <= Chart().GetClose(0);
+            if (METHOD(_method, 5)) _result &= _indi[PREV][0] > Chart().GetClose(1);
+            if (METHOD(_method, 6)) _result &= _indi[PREV][0] > Chart().GetOpen(1);
           }
           break;
         case ORDER_TYPE_SELL:
-          _result = _indi[CURR].value[0] - level > Chart().GetOpen(0);
-          _result |= _indi[PREV].value[0] - level > Chart().GetOpen(1);
+          _result = _indi[CURR][0] - level > Chart().GetOpen(0);
+          _result |= _indi[PREV][0] - level > Chart().GetOpen(1);
           if (_method != 0) {
-            if (METHOD(_method, 0)) _result &= _indi[PREV].value[0] + level < Market().GetAsk();
-            if (METHOD(_method, 1)) _result &= _indi[CURR].value[0] > _indi[PREV].value[0];
-            if (METHOD(_method, 2))
-              _result &= _indi[PREV].value[0] - _indi[CURR].value[0] <= _indi[PPREV].value[0] - _indi[PREV].value[0];
-            if (METHOD(_method, 3)) _result &= _indi[PPREV].value[0] < Market().GetAsk();
-            if (METHOD(_method, 4)) _result &= _indi[CURR].value[0] >= Chart().GetClose(0);
-            if (METHOD(_method, 5)) _result &= _indi[PREV].value[0] < Chart().GetClose(1);
-            if (METHOD(_method, 6)) _result &= _indi[PREV].value[0] < Chart().GetOpen(1);
+            if (METHOD(_method, 0)) _result &= _indi[PREV][0] + level < Market().GetAsk();
+            if (METHOD(_method, 1)) _result &= _indi[CURR][0] > _indi[PREV][0];
+            if (METHOD(_method, 2)) _result &= _indi[PREV][0] - _indi[CURR][0] <= _indi[PPREV][0] - _indi[PREV][0];
+            if (METHOD(_method, 3)) _result &= _indi[PPREV][0] < Market().GetAsk();
+            if (METHOD(_method, 4)) _result &= _indi[CURR][0] >= Chart().GetClose(0);
+            if (METHOD(_method, 5)) _result &= _indi[PREV][0] < Chart().GetClose(1);
+            if (METHOD(_method, 6)) _result &= _indi[PREV][0] < Chart().GetOpen(1);
           }
           break;
       }
@@ -154,12 +152,12 @@ class Stg_SAR : public Strategy {
     if (_is_valid) {
       switch (_method) {
         case 1:
-          _diff = fabs(open_0 - _indi[CURR].value[0]);
+          _diff = fabs(open_0 - _indi[CURR][0]);
           _result = open_0 + (_diff + _trail) * _direction;
           break;
         case 2:
-          _diff = fmax(fabs(open_0 - fmax(_indi[CURR].value[0], _indi[PREV].value[0])),
-                       fabs(open_0 - fmin(_indi[CURR].value[0], _indi[PREV].value[0])));
+          _diff = fmax(fabs(open_0 - fmax(_indi[CURR][0], _indi[PREV][0])),
+                       fabs(open_0 - fmin(_indi[CURR][0], _indi[PREV][0])));
           _result = open_0 + (_diff + _trail) * _direction;
           break;
         case 3: {
