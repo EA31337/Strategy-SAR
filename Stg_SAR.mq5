@@ -3,11 +3,10 @@
  * Implements SAR strategy.
  */
 
-// Enables debugging.
-//#define __debug__
-
 // Includes EA31337 framework.
 #include <EA31337-classes/EA.mqh>
+#include <EA31337-classes/Indicators/Indi_SAR.mqh>
+#include <EA31337-classes/Strategy.mqh>
 
 // Inputs.
 input string __SAR_Parameters__ = "-- SAR strategy params --";  // >>> SAR <<<
@@ -24,6 +23,9 @@ input bool Info_On_Chart = true;          // Display info on chart.
 #define ea_desc "Strategy based on EA31337 framework."
 #define ea_link "https://github.com/EA31337/Strategy-SAR"
 #define ea_author "kenorb"
+
+// Enables debugging.
+//#define __debug__
 
 // Properties.
 #property version ea_version

@@ -3,10 +3,6 @@
  * Implements SAR strategy based on the Parabolic Stop and Reverse system indicator.
  */
 
-// Includes.
-#include <EA31337-classes/Indicators/Indi_SAR.mqh>
-#include <EA31337-classes/Strategy.mqh>
-
 // User input params.
 INPUT float SAR_LotSize = 0;               // Lot size
 INPUT int SAR_SignalOpenMethod = 91;       // Signal open method (-127-127)
