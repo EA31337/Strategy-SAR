@@ -1,0 +1,7 @@
+; Optimize signal open level param.
+SAR_SignalOpenFilterMethod=1
+SAR_SignalOpenLevel,1=0
+SAR_SignalOpenLevel,2=1
+SAR_SignalOpenLevel,3=10
+SAR_SignalOpenLevel,F=1
+SAR_TickFilterMethod=1

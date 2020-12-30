@@ -1,0 +1,8 @@
+; Optimize price stop method param.
+SAR_PriceStopMethod,1=0
+SAR_PriceStopMethod,2=1
+SAR_PriceStopMethod,3=4
+SAR_PriceStopMethod,F=1
+SAR_OrderCloseTime=-20
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1

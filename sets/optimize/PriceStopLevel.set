@@ -1,0 +1,7 @@
+; Optimize price stop level param.
+SAR_PriceStopLevel,1=10
+SAR_PriceStopLevel,2=5
+SAR_PriceStopLevel,3=40
+SAR_PriceStopLevel,F=1
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1

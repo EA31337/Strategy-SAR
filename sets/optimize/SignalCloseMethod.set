@@ -1,0 +1,7 @@
+; Optimize signal close method param.
+SAR_SignalCloseMethod,1=-4
+SAR_SignalCloseMethod,2=1
+SAR_SignalCloseMethod,3=4
+SAR_SignalCloseMethod,F=1
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1

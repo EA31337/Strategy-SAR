@@ -1,0 +1,6 @@
+; Optimize tick filter method param.
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod,1=1
+SAR_TickFilterMethod,2=1
+SAR_TickFilterMethod,3=32
+SAR_TickFilterMethod,F=1

@@ -1,0 +1,7 @@
+; Optimize max spread param.
+SAR_MaxSpread,1=10
+SAR_MaxSpread,2=10
+SAR_MaxSpread,3=40
+SAR_MaxSpread,F=1
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1

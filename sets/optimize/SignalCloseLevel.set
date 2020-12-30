@@ -1,0 +1,7 @@
+; Optimize signal close level param.
+SAR_SignalCloseLevel,1=10
+SAR_SignalCloseLevel,2=5
+SAR_SignalCloseLevel,3=40
+SAR_SignalCloseLevel,F=1
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1

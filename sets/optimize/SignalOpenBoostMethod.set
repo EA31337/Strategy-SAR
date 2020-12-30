@@ -1,0 +1,7 @@
+; Optimize signal open boost method param.
+SAR_SignalOpenBoostMethod,1=1
+SAR_SignalOpenBoostMethod,2=1
+SAR_SignalOpenBoostMethod,3=8
+SAR_SignalOpenBoostMethod,F=1
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1

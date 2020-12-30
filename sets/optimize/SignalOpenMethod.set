@@ -1,0 +1,7 @@
+; Optimize signal open method param.
+SAR_SignalOpenFilterMethod=1
+SAR_SignalOpenMethod,1=-4
+SAR_SignalOpenMethod,2=1
+SAR_SignalOpenMethod,3=4
+SAR_SignalOpenMethod,F=1
+SAR_TickFilterMethod=1
