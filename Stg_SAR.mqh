@@ -16,6 +16,7 @@ INPUT float SAR_PriceStopLevel = 0;        // Price stop level
 INPUT int SAR_TickFilterMethod = 0;        // Tick filter method
 INPUT float SAR_MaxSpread = 6.0;           // Max spread to trade (pips)
 INPUT int SAR_Shift = 0;                   // Shift
+INPUT int SAR_OrderCloseTime = -10;        // Order close time in mins (>0) or bars (<0)
 INPUT string __SAR_Indi_SAR_Parameters__ =
     "-- SAR strategy: SAR indicator params --";  // >>> SAR strategy: SAR indicator <<<
 INPUT float Indi_SAR_Step = 0.05f;               // Step
@@ -39,7 +40,7 @@ struct Stg_SAR_Params_Defaults : StgParams {
   Stg_SAR_Params_Defaults()
       : StgParams(::SAR_SignalOpenMethod, ::SAR_SignalOpenFilterMethod, ::SAR_SignalOpenLevel,
                   ::SAR_SignalOpenBoostMethod, ::SAR_SignalCloseMethod, ::SAR_SignalCloseLevel, ::SAR_PriceStopMethod,
-                  ::SAR_PriceStopLevel, ::SAR_TickFilterMethod, ::SAR_MaxSpread, ::SAR_Shift) {}
+                  ::SAR_PriceStopLevel, ::SAR_TickFilterMethod, ::SAR_MaxSpread, ::SAR_Shift, ::SAR_OrderCloseTime) {}
 } stg_sar_defaults;
 
 // Struct to define strategy parameters to override.
