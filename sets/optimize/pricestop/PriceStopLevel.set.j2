@@ -1,6 +1,6 @@
 SAR_Indi_SAR_Applied_Price={{ applied_price | replace("(ENUM_APPLIED_PRICE)", "") | int | default(0) }}
 SAR_Indi_SAR_MA_Method={{ ma_method | default(0) }}
-SAR_Indi_SAR_Period={{ period | default(4) }}
+SAR_Indi_SAR_Period={{ (period | default(0) | int) }}
 SAR_Indi_SAR_Shift={{ shift | default(0) }}
 SAR_LotSize={{ lot_size | default(0) }}
 SAR_PriceStopLevel,1=10
