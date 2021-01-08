@@ -25,7 +25,7 @@ struct Stg_SAR_Params_{{ Timeframe }} : StgParams {
     signal_close_method = {{ SAR_SignalCloseMethod | default(0) }};
     signal_close_level = (float){{ SAR_SignalCloseLevel | default(0) }};
     price_stop_method = {{ SAR_PriceStopMethod | default(0) }};
-    price_stop_level = {{ SAR_SignalCloseLevel | default(1) }};
+    price_stop_level = (float){{ SAR_SignalCloseLevel | default(1) }};
     tick_filter_method = {{ SAR_TickFilterMethod  | default(1) }};
     max_spread = {{ SAR_MaxSpread | default(0) }};
   }
