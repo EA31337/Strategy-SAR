@@ -1,0 +1,7 @@
+; Optimize indicator param.
+SAR_Indi_SAR_Step,1=0.01
+SAR_Indi_SAR_Step,2=0.01
+SAR_Indi_SAR_Step,3=0.05
+SAR_Indi_SAR_Step,F=1
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1

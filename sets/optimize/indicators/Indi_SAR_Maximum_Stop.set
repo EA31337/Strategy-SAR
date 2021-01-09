@@ -1,0 +1,7 @@
+; Optimize indicator param.
+SAR_Indi_SAR_Maximum_Stop,1=0.1
+SAR_Indi_SAR_Maximum_Stop,2=0.1
+SAR_Indi_SAR_Maximum_Stop,3=0.5
+SAR_Indi_SAR_Maximum_Stop,F=1
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1
