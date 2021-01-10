@@ -19,21 +19,16 @@ INPUT int SAR_Shift = 0;                   // Shift
 INPUT int SAR_OrderCloseTime = -20;        // Order close time in mins (>0) or bars (<0)
 INPUT string __SAR_Indi_SAR_Parameters__ =
     "-- SAR strategy: SAR indicator params --";  // >>> SAR strategy: SAR indicator <<<
-INPUT float Indi_SAR_Step = 0.05f;               // Step
-INPUT float Indi_SAR_Maximum_Stop = 0.4f;        // Maximum stop
+INPUT float SAR_Indi_SAR_Step = 0.05f;           // Step
+INPUT float SAR_Indi_SAR_Maximum_Stop = 0.4f;    // Maximum stop
+INPUT float SAR_Indi_SAR_Shift = 0;              // Shift
 
 // Structs.
 
 // Defines struct with default user indicator values.
 struct Indi_SAR_Params_Defaults : SARParams {
-  Indi_SAR_Params_Defaults() : SARParams(::Indi_SAR_Step, ::Indi_SAR_Maximum_Stop) {}
+  Indi_SAR_Params_Defaults() : SARParams(::Indi_SAR_Step, ::Indi_SAR_Maximum_Stop, ::SAR_Indi_SAR_Shift) {}
 } indi_sar_defaults;
-
-// Defines struct to store indicator parameter values.
-struct Indi_SAR_Params : public SARParams {
-  // Struct constructors.
-  void Indi_SAR_Params(SARParams &_params, ENUM_TIMEFRAMES _tf) : SARParams(_params, _tf) {}
-};
 
 // Defines struct with default user strategy values.
 struct Stg_SAR_Params_Defaults : StgParams {
@@ -45,11 +40,11 @@ struct Stg_SAR_Params_Defaults : StgParams {
 
 // Struct to define strategy parameters to override.
 struct Stg_SAR_Params : StgParams {
-  Indi_SAR_Params iparams;
+  SARParams iparams;
   StgParams sparams;
 
   // Struct constructors.
-  Stg_SAR_Params(Indi_SAR_Params &_iparams, StgParams &_sparams)
+  Stg_SAR_Params(SARParams &_iparams, StgParams &_sparams)
       : iparams(indi_sar_defaults, _iparams.tf), sparams(stg_sar_defaults) {
     iparams = _iparams;
     sparams = _sparams;
@@ -71,11 +66,11 @@ class Stg_SAR : public Strategy {
 
   static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
-    Indi_SAR_Params _indi_params(indi_sar_defaults, _tf);
+    SARParams _indi_params(indi_sar_defaults, _tf);
     StgParams _stg_params(stg_sar_defaults);
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Indi_SAR_Params>(_indi_params, _tf, indi_sar_m1, indi_sar_m5, indi_sar_m15, indi_sar_m30,
-                                     indi_sar_h1, indi_sar_h4, indi_sar_h8);
+      SetParamsByTf<SARParams>(_indi_params, _tf, indi_sar_m1, indi_sar_m5, indi_sar_m15, indi_sar_m30, indi_sar_h1,
+                               indi_sar_h4, indi_sar_h8);
       SetParamsByTf<StgParams>(_stg_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1,
                                stg_sar_h4, stg_sar_h8);
     }

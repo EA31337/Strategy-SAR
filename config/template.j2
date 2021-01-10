@@ -4,12 +4,11 @@
  */
 
 // Defines indicator's parameter values for the given pair symbol and timeframe.
-struct Indi_SAR_Params_{{ Timeframe }} : Indi_SAR_Params {
-  Indi_SAR_Params_{{ Timeframe }}() : Indi_SAR_Params(indi_sar_defaults, PERIOD_{{ Timeframe }}) {
-    applied_price = (ENUM_APPLIED_PRICE){{ SAR_Indi_SAR_Applied_Price | default(0) }};
-    ma_method = {{ SAR_Indi_SAR_MA_Method | default(0) }};
-    period = {{ SAR_Indi_SAR_Period | default(0) }};
-    shift = {{ SAR_Shift | default(0) }};
+struct Indi_SAR_Params_{{ Timeframe }} : SARParams {
+  Indi_SAR_Params_{{ Timeframe }}() : SARParams(indi_sar_defaults, PERIOD_{{ Timeframe }}) {
+    step = {{ SAR_Indi_SAR_Step | default(0) }};
+    max = {{ SAR_Indi_SAR_Maximum_Stop | default(0) }};
+    shift = {{ SAR_Indi_SAR_Shift | default(0) }};
   }
 } indi_sar_{{ Timeframe | lower }};
 
