@@ -21,13 +21,13 @@ INPUT string __SAR_Indi_SAR_Parameters__ =
     "-- SAR strategy: SAR indicator params --";  // >>> SAR strategy: SAR indicator <<<
 INPUT float SAR_Indi_SAR_Step = 0.05f;           // Step
 INPUT float SAR_Indi_SAR_Maximum_Stop = 0.4f;    // Maximum stop
-INPUT float SAR_Indi_SAR_Shift = 0;              // Shift
+INPUT int SAR_Indi_SAR_Shift = 0;                // Shift
 
 // Structs.
 
 // Defines struct with default user indicator values.
 struct Indi_SAR_Params_Defaults : SARParams {
-  Indi_SAR_Params_Defaults() : SARParams(::Indi_SAR_Step, ::Indi_SAR_Maximum_Stop, ::SAR_Indi_SAR_Shift) {}
+  Indi_SAR_Params_Defaults() : SARParams(::SAR_Indi_SAR_Step, ::SAR_Indi_SAR_Maximum_Stop, ::SAR_Indi_SAR_Shift) {}
 } indi_sar_defaults;
 
 // Defines struct with default user strategy values.
