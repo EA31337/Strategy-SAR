@@ -1,0 +1,7 @@
+; Optimize indicator's shift param.
+SAR_Indi_SAR_Shift,1=0
+SAR_Indi_SAR_Shift,2=1
+SAR_Indi_SAR_Shift,3=4
+SAR_Indi_SAR_Shift,F=1
+SAR_SignalOpenFilterMethod=1
+SAR_TickFilterMethod=1
