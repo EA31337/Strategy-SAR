@@ -19,8 +19,8 @@ INPUT int SAR_Shift = 0;                   // Shift
 INPUT int SAR_OrderCloseTime = -20;        // Order close time in mins (>0) or bars (<0)
 INPUT string __SAR_Indi_SAR_Parameters__ =
     "-- SAR strategy: SAR indicator params --";  // >>> SAR strategy: SAR indicator <<<
-INPUT float SAR_Indi_SAR_Step = 0.05f;           // Step
-INPUT float SAR_Indi_SAR_Maximum_Stop = 0.5f;    // Maximum stop
+INPUT float SAR_Indi_SAR_Step = 0.01f;           // Step
+INPUT float SAR_Indi_SAR_Maximum_Stop = 0.1f;    // Maximum stop
 INPUT int SAR_Indi_SAR_Shift = 0;                // Shift
 
 // Structs.
