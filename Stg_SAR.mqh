@@ -69,12 +69,12 @@ class Stg_SAR : public Strategy {
     // Initialize strategy initial values.
     SARParams _indi_params(indi_sar_defaults, _tf);
     StgParams _stg_params(stg_sar_defaults);
-    if (!Terminal::IsOptimization()) {
-      SetParamsByTf<SARParams>(_indi_params, _tf, indi_sar_m1, indi_sar_m5, indi_sar_m15, indi_sar_m30, indi_sar_h1,
-                               indi_sar_h4, indi_sar_h8);
-      SetParamsByTf<StgParams>(_stg_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1,
-                               stg_sar_h4, stg_sar_h8);
-    }
+#ifdef __config__
+    SetParamsByTf<SARParams>(_indi_params, _tf, indi_sar_m1, indi_sar_m5, indi_sar_m15, indi_sar_m30, indi_sar_h1,
+                             indi_sar_h4, indi_sar_h8);
+    SetParamsByTf<StgParams>(_stg_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1, stg_sar_h4,
+                             stg_sar_h8);
+#endif
     // Initialize indicator.
     SARParams sar_params(_indi_params);
     _stg_params.SetIndicator(new Indi_SAR(_indi_params));
