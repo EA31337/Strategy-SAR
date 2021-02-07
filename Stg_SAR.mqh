@@ -4,19 +4,20 @@
  */
 
 // User input params.
-INPUT float SAR_LotSize = 0;               // Lot size
-INPUT int SAR_SignalOpenMethod = 0;        // Signal open method (0)
-INPUT float SAR_SignalOpenLevel = 0.0f;    // Signal open level
-INPUT int SAR_SignalOpenFilterMethod = 1;  // Signal open filter method
-INPUT int SAR_SignalOpenBoostMethod = 0;   // Signal open boost method
-INPUT int SAR_SignalCloseMethod = 0;       // Signal close method (0)
-INPUT float SAR_SignalCloseLevel = 0.0f;   // Signal close level
-INPUT int SAR_PriceStopMethod = 0;         // Price stop method
-INPUT float SAR_PriceStopLevel = 0;        // Price stop level
-INPUT int SAR_TickFilterMethod = 1;        // Tick filter method
-INPUT float SAR_MaxSpread = 4.0;           // Max spread to trade (pips)
-INPUT int SAR_Shift = 0;                   // Shift
-INPUT int SAR_OrderCloseTime = -20;        // Order close time in mins (>0) or bars (<0)
+INPUT string __SAR_Parameters__ = "-- SAR strategy params --";  // >>> SAR <<<
+INPUT float SAR_LotSize = 0;                                    // Lot size
+INPUT int SAR_SignalOpenMethod = 0;                             // Signal open method (0)
+INPUT float SAR_SignalOpenLevel = 0.0f;                         // Signal open level
+INPUT int SAR_SignalOpenFilterMethod = 1;                       // Signal open filter method
+INPUT int SAR_SignalOpenBoostMethod = 0;                        // Signal open boost method
+INPUT int SAR_SignalCloseMethod = 0;                            // Signal close method (0)
+INPUT float SAR_SignalCloseLevel = 0.0f;                        // Signal close level
+INPUT int SAR_PriceStopMethod = 0;                              // Price stop method
+INPUT float SAR_PriceStopLevel = 0;                             // Price stop level
+INPUT int SAR_TickFilterMethod = 1;                             // Tick filter method
+INPUT float SAR_MaxSpread = 4.0;                                // Max spread to trade (pips)
+INPUT int SAR_Shift = 0;                                        // Shift
+INPUT int SAR_OrderCloseTime = -20;                             // Order close time in mins (>0) or bars (<0)
 INPUT string __SAR_Indi_SAR_Parameters__ =
     "-- SAR strategy: SAR indicator params --";  // >>> SAR strategy: SAR indicator <<<
 INPUT float SAR_Indi_SAR_Step = 0.01f;           // Step
@@ -68,12 +69,12 @@ class Stg_SAR : public Strategy {
     // Initialize strategy initial values.
     SARParams _indi_params(indi_sar_defaults, _tf);
     StgParams _stg_params(stg_sar_defaults);
-    if (!Terminal::IsOptimization()) {
-      SetParamsByTf<SARParams>(_indi_params, _tf, indi_sar_m1, indi_sar_m5, indi_sar_m15, indi_sar_m30, indi_sar_h1,
-                               indi_sar_h4, indi_sar_h8);
-      SetParamsByTf<StgParams>(_stg_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1,
-                               stg_sar_h4, stg_sar_h8);
-    }
+#ifdef __config__
+    SetParamsByTf<SARParams>(_indi_params, _tf, indi_sar_m1, indi_sar_m5, indi_sar_m15, indi_sar_m30, indi_sar_h1,
+                             indi_sar_h4, indi_sar_h8);
+    SetParamsByTf<StgParams>(_stg_params, _tf, stg_sar_m1, stg_sar_m5, stg_sar_m15, stg_sar_m30, stg_sar_h1, stg_sar_h4,
+                             stg_sar_h8);
+#endif
     // Initialize indicator.
     SARParams sar_params(_indi_params);
     _stg_params.SetIndicator(new Indi_SAR(_indi_params));
@@ -83,7 +84,6 @@ class Stg_SAR : public Strategy {
     _stg_params.SetTf(_tf, _Symbol);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_SAR(_stg_params, "SAR");
-    _stg_params.SetStops(_strat, _strat);
     return _strat;
   }
 
