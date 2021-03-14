@@ -11,6 +11,5 @@ struct Stg_SAR_EA_Params : EAParams {
     magic_no = rand();
     log_level = Log_Level;
     chart_info_freq = Info_On_Chart ? 2 : 0;
-    report_to_file = false;
   }
 };
