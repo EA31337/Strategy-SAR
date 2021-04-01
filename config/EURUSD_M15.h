@@ -6,8 +6,8 @@
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_SAR_Params_M15 : SARParams {
   Indi_SAR_Params_M15() : SARParams(indi_sar_defaults, PERIOD_M15) {
-    step = (float)0.05;
-    max = (float)0.5;
+    step = 0.05;
+    max = 0.5;
     shift = 0;
   }
 } indi_sar_m15;
