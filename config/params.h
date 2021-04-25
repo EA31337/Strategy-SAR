@@ -8,7 +8,6 @@
 struct Stg_SAR_EA_Params : EAParams {
   Stg_SAR_EA_Params() {
     name = ea_name;
-    magic_no = rand();
     log_level = Log_Level;
     chart_info_freq = Info_On_Chart ? 2 : 0;
   }
