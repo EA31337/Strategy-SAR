@@ -8,7 +8,7 @@ INPUT string __SAR_Parameters__ = "-- SAR strategy params --";  // >>> SAR <<<
 INPUT float SAR_LotSize = 0;                                    // Lot size
 INPUT int SAR_SignalOpenMethod = 2;                             // Signal open method (-127-127)
 INPUT float SAR_SignalOpenLevel = 0.0f;                         // Signal open level
-INPUT int SAR_SignalOpenFilterMethod = 32;                       // Signal open filter method
+INPUT int SAR_SignalOpenFilterMethod = 32;                      // Signal open filter method
 INPUT int SAR_SignalOpenBoostMethod = 0;                        // Signal open boost method
 INPUT int SAR_SignalCloseMethod = 2;                            // Signal close method (-127-127)
 INPUT float SAR_SignalCloseLevel = 0.0f;                        // Signal close level
@@ -94,16 +94,19 @@ class Stg_SAR : public Strategy {
     bool _is_valid = _indi[_shift].IsValid() && _indi[_shift + 1].IsValid() && _indi[_shift + 2].IsValid();
     bool _result = _is_valid;
     if (_is_valid) {
+      IndicatorSignal _signals = _indi.GetSignals(4, _shift);
       switch (_cmd) {
         case ORDER_TYPE_BUY:
           _result &= _indi.IsIncreasing(1, 0, _shift);
           _result &= _indi[_shift + 2][0] > _indi[_shift][0];
           _result &= _indi.IsDecByPct(-_level, 0, _shift, 2);
+          _result &= _method > 0 ? _signals.CheckSignals(_method) : _signals.CheckSignalsAll(-_method);
           break;
         case ORDER_TYPE_SELL:
           _result &= _indi.IsDecreasing(1, 0, _shift);
           _result &= _indi[_shift + 2][0] < _indi[_shift][0];
           _result &= _indi.IsIncByPct(_level, 0, _shift, 2);
+          _result &= _method > 0 ? _signals.CheckSignals(_method) : _signals.CheckSignalsAll(-_method);
           break;
       }
     }
