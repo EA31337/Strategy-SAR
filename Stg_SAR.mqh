@@ -18,6 +18,8 @@ INPUT float SAR_PriceStopLevel = 0;         // Price stop level
 INPUT int SAR_TickFilterMethod = 1;         // Tick filter method
 INPUT float SAR_MaxSpread = 4.0;            // Max spread to trade (pips)
 INPUT short SAR_Shift = 0;                  // Shift
+INPUT float SAR_OrderCloseLoss = 0;         // Order close loss
+INPUT float SAR_OrderCloseProfit = 0;       // Order close profit
 INPUT int SAR_OrderCloseTime = -20;         // Order close time in mins (>0) or bars (<0)
 INPUT_GROUP("SAR strategy: SAR indicator params");
 INPUT float SAR_Indi_SAR_Step = 0.01f;         // Step
@@ -36,8 +38,11 @@ struct Stg_SAR_Params_Defaults : StgParams {
   Stg_SAR_Params_Defaults()
       : StgParams(::SAR_SignalOpenMethod, ::SAR_SignalOpenFilterMethod, ::SAR_SignalOpenLevel,
                   ::SAR_SignalOpenBoostMethod, ::SAR_SignalCloseMethod, ::SAR_SignalCloseFilter, ::SAR_SignalCloseLevel,
-                  ::SAR_PriceStopMethod, ::SAR_PriceStopLevel, ::SAR_TickFilterMethod, ::SAR_MaxSpread, ::SAR_Shift,
-                  ::SAR_OrderCloseTime) {}
+                  ::SAR_PriceStopMethod, ::SAR_PriceStopLevel, ::SAR_TickFilterMethod, ::SAR_MaxSpread, ::SAR_Shift) {
+    Set(STRAT_PARAM_OCL, SAR_OrderCloseLoss);
+    Set(STRAT_PARAM_OCP, SAR_OrderCloseProfit);
+    Set(STRAT_PARAM_OCT, SAR_OrderCloseTime);
+  }
 } stg_sar_defaults;
 
 // Struct to define strategy parameters to override.
