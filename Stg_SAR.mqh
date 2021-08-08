@@ -11,6 +11,7 @@ INPUT float SAR_SignalOpenLevel = 0.0f;     // Signal open level
 INPUT int SAR_SignalOpenFilterMethod = 32;  // Signal open filter method
 INPUT int SAR_SignalOpenBoostMethod = 0;    // Signal open boost method
 INPUT int SAR_SignalCloseMethod = 2;        // Signal close method (-127-127)
+INPUT int SAR_SignalCloseFilter = 0;        // Signal close filter (-127-127)
 INPUT float SAR_SignalCloseLevel = 0.0f;    // Signal close level
 INPUT int SAR_PriceStopMethod = 1;          // Price stop method
 INPUT float SAR_PriceStopLevel = 0;         // Price stop level
@@ -34,8 +35,9 @@ struct Indi_SAR_Params_Defaults : SARParams {
 struct Stg_SAR_Params_Defaults : StgParams {
   Stg_SAR_Params_Defaults()
       : StgParams(::SAR_SignalOpenMethod, ::SAR_SignalOpenFilterMethod, ::SAR_SignalOpenLevel,
-                  ::SAR_SignalOpenBoostMethod, ::SAR_SignalCloseMethod, ::SAR_SignalCloseLevel, ::SAR_PriceStopMethod,
-                  ::SAR_PriceStopLevel, ::SAR_TickFilterMethod, ::SAR_MaxSpread, ::SAR_Shift, ::SAR_OrderCloseTime) {}
+                  ::SAR_SignalOpenBoostMethod, ::SAR_SignalCloseMethod, ::SAR_SignalCloseFilter, ::SAR_SignalCloseLevel,
+                  ::SAR_PriceStopMethod, ::SAR_PriceStopLevel, ::SAR_TickFilterMethod, ::SAR_MaxSpread, ::SAR_Shift,
+                  ::SAR_OrderCloseTime) {}
 } stg_sar_defaults;
 
 // Struct to define strategy parameters to override.
