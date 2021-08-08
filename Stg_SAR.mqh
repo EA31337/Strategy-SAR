@@ -4,25 +4,24 @@
  */
 
 // User input params.
-INPUT string __SAR_Parameters__ = "-- SAR strategy params --";  // >>> SAR <<<
-INPUT float SAR_LotSize = 0;                                    // Lot size
-INPUT int SAR_SignalOpenMethod = 2;                             // Signal open method (-127-127)
-INPUT float SAR_SignalOpenLevel = 0.0f;                         // Signal open level
-INPUT int SAR_SignalOpenFilterMethod = 32;                      // Signal open filter method
-INPUT int SAR_SignalOpenBoostMethod = 0;                        // Signal open boost method
-INPUT int SAR_SignalCloseMethod = 2;                            // Signal close method (-127-127)
-INPUT float SAR_SignalCloseLevel = 0.0f;                        // Signal close level
-INPUT int SAR_PriceStopMethod = 1;                              // Price stop method
-INPUT float SAR_PriceStopLevel = 0;                             // Price stop level
-INPUT int SAR_TickFilterMethod = 1;                             // Tick filter method
-INPUT float SAR_MaxSpread = 4.0;                                // Max spread to trade (pips)
-INPUT short SAR_Shift = 0;                                      // Shift
-INPUT int SAR_OrderCloseTime = -20;                             // Order close time in mins (>0) or bars (<0)
-INPUT string __SAR_Indi_SAR_Parameters__ =
-    "-- SAR strategy: SAR indicator params --";  // >>> SAR strategy: SAR indicator <<<
-INPUT float SAR_Indi_SAR_Step = 0.01f;           // Step
-INPUT float SAR_Indi_SAR_Maximum_Stop = 0.1f;    // Maximum stop
-INPUT int SAR_Indi_SAR_Shift = 0;                // Shift
+INPUT_GROUP("SAR strategy: strategy params");
+INPUT float SAR_LotSize = 0;                // Lot size
+INPUT int SAR_SignalOpenMethod = 2;         // Signal open method (-127-127)
+INPUT float SAR_SignalOpenLevel = 0.0f;     // Signal open level
+INPUT int SAR_SignalOpenFilterMethod = 32;  // Signal open filter method
+INPUT int SAR_SignalOpenBoostMethod = 0;    // Signal open boost method
+INPUT int SAR_SignalCloseMethod = 2;        // Signal close method (-127-127)
+INPUT float SAR_SignalCloseLevel = 0.0f;    // Signal close level
+INPUT int SAR_PriceStopMethod = 1;          // Price stop method
+INPUT float SAR_PriceStopLevel = 0;         // Price stop level
+INPUT int SAR_TickFilterMethod = 1;         // Tick filter method
+INPUT float SAR_MaxSpread = 4.0;            // Max spread to trade (pips)
+INPUT short SAR_Shift = 0;                  // Shift
+INPUT int SAR_OrderCloseTime = -20;         // Order close time in mins (>0) or bars (<0)
+INPUT_GROUP("SAR strategy: SAR indicator params");
+INPUT float SAR_Indi_SAR_Step = 0.01f;         // Step
+INPUT float SAR_Indi_SAR_Maximum_Stop = 0.1f;  // Maximum stop
+INPUT int SAR_Indi_SAR_Shift = 0;              // Shift
 
 // Structs.
 
