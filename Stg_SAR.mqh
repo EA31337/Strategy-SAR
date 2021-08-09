@@ -9,6 +9,7 @@ INPUT float SAR_LotSize = 0;                // Lot size
 INPUT int SAR_SignalOpenMethod = 2;         // Signal open method (-127-127)
 INPUT float SAR_SignalOpenLevel = 0.0f;     // Signal open level
 INPUT int SAR_SignalOpenFilterMethod = 32;  // Signal open filter method
+INPUT int SAR_SignalOpenFilterTime = 6;     // Signal open filter time
 INPUT int SAR_SignalOpenBoostMethod = 0;    // Signal open boost method
 INPUT int SAR_SignalCloseMethod = 2;        // Signal close method (-127-127)
 INPUT int SAR_SignalCloseFilter = 0;        // Signal close filter (-127-127)
@@ -42,6 +43,7 @@ struct Stg_SAR_Params_Defaults : StgParams {
     Set(STRAT_PARAM_OCL, SAR_OrderCloseLoss);
     Set(STRAT_PARAM_OCP, SAR_OrderCloseProfit);
     Set(STRAT_PARAM_OCT, SAR_OrderCloseTime);
+    Set(STRAT_PARAM_SOFT, SAR_SignalOpenFilterTime);
   }
 } stg_sar_defaults;
 
