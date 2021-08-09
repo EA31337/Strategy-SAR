@@ -18,7 +18,7 @@ struct Stg_SAR_Params_{{ Timeframe }} : StgParams {
   Stg_SAR_Params_{{ Timeframe }}() : StgParams(stg_sar_defaults) {
     lot_size = {{ SAR_LotSize | default(0) }};
     signal_open_method = {{ SAR_SignalOpenMethod | default(0) }};
-    signal_open_filter = {{ SAR_SignalOpenFilterMethod | default(1) }};
+    signal_open_filter_method = {{ SAR_SignalOpenFilterMethod | default(1) }};
     signal_open_level = (float){{ SAR_SignalOpenLevel | default(0) }};
     signal_open_boost = {{ SAR_SignalOpenBoostMethod | default(0) }};
     signal_close_method = {{ SAR_SignalCloseMethod | default(0) }};
