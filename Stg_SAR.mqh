@@ -6,24 +6,24 @@
 // User input params.
 INPUT_GROUP("SAR strategy: strategy params");
 INPUT float SAR_LotSize = 0;                // Lot size
-INPUT int SAR_SignalOpenMethod = 2;         // Signal open method (-127-127)
-INPUT float SAR_SignalOpenLevel = 0.0f;     // Signal open level
+INPUT int SAR_SignalOpenMethod = 0;         // Signal open method (-127-127)
+INPUT float SAR_SignalOpenLevel = 0.11f;    // Signal open level
 INPUT int SAR_SignalOpenFilterMethod = 32;  // Signal open filter method
 INPUT int SAR_SignalOpenFilterTime = 6;     // Signal open filter time
 INPUT int SAR_SignalOpenBoostMethod = 0;    // Signal open boost method
-INPUT int SAR_SignalCloseMethod = 2;        // Signal close method (-127-127)
-INPUT int SAR_SignalCloseFilter = 0;        // Signal close filter (-127-127)
-INPUT float SAR_SignalCloseLevel = 0.0f;    // Signal close level
-INPUT int SAR_PriceStopMethod = 1;          // Price stop method
+INPUT int SAR_SignalCloseMethod = 0;        // Signal close method (-127-127)
+INPUT int SAR_SignalCloseFilter = 32;       // Signal close filter (-127-127)
+INPUT float SAR_SignalCloseLevel = 0.11f;   // Signal close level
+INPUT int SAR_PriceStopMethod = 1;          // Price stop method (0-127)
 INPUT float SAR_PriceStopLevel = 0;         // Price stop level
 INPUT int SAR_TickFilterMethod = 1;         // Tick filter method
 INPUT float SAR_MaxSpread = 4.0;            // Max spread to trade (pips)
 INPUT short SAR_Shift = 0;                  // Shift
 INPUT float SAR_OrderCloseLoss = 0;         // Order close loss
 INPUT float SAR_OrderCloseProfit = 0;       // Order close profit
-INPUT int SAR_OrderCloseTime = -20;         // Order close time in mins (>0) or bars (<0)
+INPUT int SAR_OrderCloseTime = -30;         // Order close time in mins (>0) or bars (<0)
 INPUT_GROUP("SAR strategy: SAR indicator params");
-INPUT float SAR_Indi_SAR_Step = 0.01f;         // Step
+INPUT float SAR_Indi_SAR_Step = 0.011f;        // Step
 INPUT float SAR_Indi_SAR_Maximum_Stop = 0.1f;  // Maximum stop
 INPUT int SAR_Indi_SAR_Shift = 0;              // Shift
 
@@ -99,7 +99,8 @@ class Stg_SAR : public Strategy {
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     Indi_SAR *_indi = GetIndicator();
-    bool _result = _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID);
+    bool _result =
+        _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _shift) && _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _shift + 2);
     if (!_result) {
       // Returns false when indicator data is not valid.
       return false;
@@ -107,14 +108,14 @@ class Stg_SAR : public Strategy {
     IndicatorSignal _signals = _indi.GetSignals(4, _shift);
     switch (_cmd) {
       case ORDER_TYPE_BUY:
-        _result &= _indi.IsIncreasing(1, 0, _shift);
         _result &= _indi[_shift + 2][0] > _indi[_shift][0];
+        _result &= _indi.IsIncreasing(1, 0, _shift);
         _result &= _indi.IsDecByPct(-_level, 0, _shift, 2);
         _result &= _method > 0 ? _signals.CheckSignals(_method) : _signals.CheckSignalsAll(-_method);
         break;
       case ORDER_TYPE_SELL:
-        _result &= _indi.IsDecreasing(1, 0, _shift);
         _result &= _indi[_shift + 2][0] < _indi[_shift][0];
+        _result &= _indi.IsDecreasing(1, 0, _shift);
         _result &= _indi.IsIncByPct(_level, 0, _shift, 2);
         _result &= _method > 0 ? _signals.CheckSignals(_method) : _signals.CheckSignalsAll(-_method);
         break;
