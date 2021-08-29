@@ -40,6 +40,7 @@ struct Stg_SAR_Params_Defaults : StgParams {
       : StgParams(::SAR_SignalOpenMethod, ::SAR_SignalOpenFilterMethod, ::SAR_SignalOpenLevel,
                   ::SAR_SignalOpenBoostMethod, ::SAR_SignalCloseMethod, ::SAR_SignalCloseFilter, ::SAR_SignalCloseLevel,
                   ::SAR_PriceStopMethod, ::SAR_PriceStopLevel, ::SAR_TickFilterMethod, ::SAR_MaxSpread, ::SAR_Shift) {
+    Set(STRAT_PARAM_LS, SAR_LotSize);
     Set(STRAT_PARAM_OCL, SAR_OrderCloseLoss);
     Set(STRAT_PARAM_OCP, SAR_OrderCloseProfit);
     Set(STRAT_PARAM_OCT, SAR_OrderCloseTime);
