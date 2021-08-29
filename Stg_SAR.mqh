@@ -76,7 +76,7 @@ class Stg_SAR : public Strategy {
   Stg_SAR(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
       : Strategy(_sparams, _tparams, _cparams, _name) {}
 
-  static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
+  static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL) {
     // Initialize strategy initial values.
     SARParams _indi_params(indi_sar_defaults, _tf);
     StgParams _stg_params(stg_sar_defaults);
@@ -91,7 +91,7 @@ class Stg_SAR : public Strategy {
     _stg_params.SetIndicator(new Indi_SAR(_indi_params));
     // Initialize Strategy instance.
     ChartParams _cparams(_tf, _Symbol);
-    TradeParams _tparams(_magic_no, _log_level);
+    TradeParams _tparams;
     Strategy *_strat = new Stg_SAR(_stg_params, _tparams, _cparams, "SAR");
     return _strat;
   }
