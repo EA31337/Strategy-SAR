@@ -19,8 +19,8 @@ INPUT float SAR_PriceStopLevel = 2;         // Price stop level
 INPUT int SAR_TickFilterMethod = 32;        // Tick filter method
 INPUT float SAR_MaxSpread = 4.0;            // Max spread to trade (pips)
 INPUT short SAR_Shift = 0;                  // Shift
-INPUT float SAR_OrderCloseLoss = 0;         // Order close loss
-INPUT float SAR_OrderCloseProfit = 0;       // Order close profit
+INPUT float SAR_OrderCloseLoss = 80;        // Order close loss
+INPUT float SAR_OrderCloseProfit = 80;      // Order close profit
 INPUT int SAR_OrderCloseTime = -30;         // Order close time in mins (>0) or bars (<0)
 INPUT_GROUP("SAR strategy: SAR indicator params");
 INPUT float SAR_Indi_SAR_Step = 0.011f;        // Step
