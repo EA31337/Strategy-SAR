@@ -48,19 +48,6 @@ struct Stg_SAR_Params_Defaults : StgParams {
   }
 } stg_sar_defaults;
 
-// Struct to define strategy parameters to override.
-struct Stg_SAR_Params : StgParams {
-  SARParams iparams;
-  StgParams sparams;
-
-  // Struct constructors.
-  Stg_SAR_Params(SARParams &_iparams, StgParams &_sparams)
-      : iparams(indi_sar_defaults, _iparams.tf.GetTf()), sparams(stg_sar_defaults) {
-    iparams = _iparams;
-    sparams = _sparams;
-  }
-};
-
 #ifdef __config__
 // Loads pair specific param values.
 #include "config/H1.h"
