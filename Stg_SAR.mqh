@@ -77,7 +77,6 @@ class Stg_SAR : public Strategy {
                              stg_sar_h8);
 #endif
     // Initialize indicator.
-    SARParams sar_params(_indi_params);
     _stg_params.SetIndicator(new Indi_SAR(_indi_params));
     // Initialize Strategy instance.
     ChartParams _cparams(_tf, _Symbol);
