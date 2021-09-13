@@ -32,7 +32,7 @@ INPUT int SAR_Indi_SAR_Shift = 0;              // Shift
 // Defines struct with default user indicator values.
 struct Indi_SAR_Params_Defaults : SARParams {
   Indi_SAR_Params_Defaults() : SARParams(::SAR_Indi_SAR_Step, ::SAR_Indi_SAR_Maximum_Stop, ::SAR_Indi_SAR_Shift) {}
-} indi_sar_defaults;
+};
 
 // Defines struct with default user strategy values.
 struct Stg_SAR_Params_Defaults : StgParams {
@@ -46,7 +46,7 @@ struct Stg_SAR_Params_Defaults : StgParams {
     Set(STRAT_PARAM_OCT, SAR_OrderCloseTime);
     Set(STRAT_PARAM_SOFT, SAR_SignalOpenFilterTime);
   }
-} stg_sar_defaults;
+};
 
 #ifdef __config__
 // Loads pair specific param values.
@@ -66,7 +66,9 @@ class Stg_SAR : public Strategy {
 
   static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL) {
     // Initialize strategy initial values.
+    Indi_SAR_Params_Defaults indi_sar_defaults;
     SARParams _indi_params(indi_sar_defaults, _tf);
+    Stg_SAR_Params_Defaults stg_sar_defaults;
     StgParams _stg_params(stg_sar_defaults);
 #ifdef __config__
     SetParamsByTf<SARParams>(_indi_params, _tf, indi_sar_m1, indi_sar_m5, indi_sar_m15, indi_sar_m30, indi_sar_h1,
