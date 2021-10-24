@@ -4,8 +4,8 @@
  */
 
 // Defines indicator's parameter values for the given pair symbol and timeframe.
-struct Indi_SAR_Params_M1 : SARParams {
-  Indi_SAR_Params_M1() : SARParams(indi_sar_defaults, PERIOD_M1) {
+struct Indi_SAR_Params_M1 : IndiSARParams {
+  Indi_SAR_Params_M1() : IndiSARParams(indi_sar_defaults, PERIOD_M1) {
     step = (float)0.01;
     max = (float)0.1;
     shift = 0;
