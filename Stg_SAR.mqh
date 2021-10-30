@@ -27,12 +27,18 @@ INPUT float SAR_Indi_SAR_Step = 0.011f;        // Step
 INPUT float SAR_Indi_SAR_Maximum_Stop = 0.1f;  // Maximum stop
 INPUT int SAR_Indi_SAR_Shift = 0;              // Shift
 
-// Structs.
+#ifdef __config__
+// Loads pair specific param values.
+#include "config/H1.h"
+#include "config/H4.h"
+#include "config/H8.h"
+#include "config/M1.h"
+#include "config/M15.h"
+#include "config/M30.h"
+#include "config/M5.h"
+#endif
 
-// Defines struct with default user indicator values.
-struct Indi_SAR_Params_Defaults : IndiSARParams {
-  Indi_SAR_Params_Defaults() : IndiSARParams(::SAR_Indi_SAR_Step, ::SAR_Indi_SAR_Maximum_Stop, ::SAR_Indi_SAR_Shift) {}
-};
+// Structs.
 
 // Defines struct with default user strategy values.
 struct Stg_SAR_Params_Defaults : StgParams {
@@ -47,17 +53,6 @@ struct Stg_SAR_Params_Defaults : StgParams {
     Set(STRAT_PARAM_SOFT, SAR_SignalOpenFilterTime);
   }
 };
-
-#ifdef __config__
-// Loads pair specific param values.
-#include "config/H1.h"
-#include "config/H4.h"
-#include "config/H8.h"
-#include "config/M1.h"
-#include "config/M15.h"
-#include "config/M30.h"
-#include "config/M5.h"
-#endif
 
 class Stg_SAR : public Strategy {
  public:
@@ -84,8 +79,8 @@ class Stg_SAR : public Strategy {
    * Event on strategy's init.
    */
   void OnInit() {
-    Indi_SAR_Params_Defaults indi_sar_defaults;
-    IndiSARParams _indi_params(indi_sar_defaults, Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+    IndiSARParams _indi_params(::SAR_Indi_SAR_Step, ::SAR_Indi_SAR_Maximum_Stop, ::SAR_Indi_SAR_Shift);
+    _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
     SetIndicator(new Indi_SAR(_indi_params));
   }
 
