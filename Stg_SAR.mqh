@@ -59,7 +59,7 @@ class Stg_SAR : public Strategy {
   Stg_SAR(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
       : Strategy(_sparams, _tparams, _cparams, _name) {}
 
-  static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL) {
+  static Stg_SAR *Init(ENUM_TIMEFRAMES _tf = NULL, EA* _ea = NULL) {
     // Initialize strategy initial values.
     Stg_SAR_Params_Defaults stg_sar_defaults;
     StgParams _stg_params(stg_sar_defaults);
